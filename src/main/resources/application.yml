@@ -1,0 +1,24 @@
+server:
+  port: 8040
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-request-size: 100MB
+      max-file-size: 40MB
+logging:
+  pattern:
+    dateformat: 'yyyy-MM-dd HH:mm:ss.SSS'
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  packages-to-scan:
+    - com.zeroxn.bbs.controller
+    - com.zeroxn.bbs.model
+mybatis-flex:
+  mapper-locations: classpath:/mappers/*.xml
+  type-aliases-package: com.zeroxn.bbs.model.entity
+  configuration:
+    map-underscore-to-camel-case: true
