@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.web.validation;
+package com.zeroxn.bbs.core.validation;
 
 /**
  * @Author: lisang

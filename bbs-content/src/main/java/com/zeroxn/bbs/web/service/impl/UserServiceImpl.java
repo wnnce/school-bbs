@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 //        ExceptionUtils.isConditionThrowServer(openId == null, "登录失败，获取OpenId失败");
         User findUser = userMapper.selectOneByQuery(new QueryWrapper().where(USER.OPENID.eq(openId)));
         if (findUser != null) {
-            if (findUser.getStatus() == 1) {
+            if (findUser.getUserAuth() == 1) {
                 logger.warn("用户被禁用，禁止登陆，userId：{}", findUser.getId());
                 ExceptionUtils.throwRequestException("当前用户已被禁用");
             }
@@ -84,8 +84,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserInfo(Long userId) {
-        return userMapper.selectOneById(userId);
+    public User queryUserInfo(Long userId) {
+        return userMapper.selectOneByQuery(new QueryWrapper().where(USER.ID.eq(userId)).where(USER.STATUS.ne(2)));
     }
 
     @Override

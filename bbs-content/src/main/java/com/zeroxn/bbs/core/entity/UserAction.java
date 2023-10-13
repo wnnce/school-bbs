@@ -7,7 +7,7 @@ import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import com.zeroxn.bbs.web.validation.ValidationGroups.SaveValidation;
+import com.zeroxn.bbs.core.validation.ValidationGroups.SaveValidation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

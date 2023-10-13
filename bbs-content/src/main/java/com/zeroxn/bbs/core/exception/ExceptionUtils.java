@@ -25,6 +25,10 @@ public final class ExceptionUtils {
         throw new CustomException(HttpStatus.BAD_REQUEST, message);
     }
 
+    public static void throwAuthorizedException(String message) {
+        throw new CustomException(HttpStatus.UNAUTHORIZED, message);
+    }
+
     /**
      * 通过条件抛出自定义响应码和错误信息的异常
      * @param condition 判断条件

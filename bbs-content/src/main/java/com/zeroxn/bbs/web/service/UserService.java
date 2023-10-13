@@ -13,7 +13,7 @@ import java.util.Map;
 public interface UserService {
     String login(String code);
     String getUserPhone(String code);
-    User getUserInfo(Long userId);
+    User queryUserInfo(Long userId);
     void updateUserInfo(Long userId, UpdateUserDto userDto);
     boolean sendStudentAuthCode(String studentId);
     Map<String, Object> studentAuth(String studentId, String code, Long userId);

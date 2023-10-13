@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.List;
 
@@ -48,6 +49,18 @@ public class GlobalExceptionHandler {
         List<ObjectError> allErrors = ex.getAllErrors();
         String[] messages = allErrors.stream().map(ObjectError::getDefaultMessage).toArray(String[]::new);
         return Result.failed(messages[0]);
+    }
+
+    /**
+     * 处理上传文件过大异常
+     * @param ex MaxUploadSizeExceededException
+     * @return 返回错误信息
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+        logger.error("请求上传的文件过大，上传文件大小：{}", ex.getMaxUploadSize());
+        return Result.failed("上传文件过大");
     }
 
     /**

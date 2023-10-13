@@ -1,7 +1,5 @@
 package com.zeroxn.bbs.web.controller;
 
-import com.zeroxn.bbs.core.common.StudentAuthService;
-import com.zeroxn.bbs.core.entity.Student;
 import com.zeroxn.bbs.core.entity.User;
 import com.zeroxn.bbs.core.utils.BbsUtils;
 import com.zeroxn.bbs.web.dto.Result;
@@ -49,7 +47,7 @@ public class UserController {
     @Operation(description = "获取用户信息接口")
     public Result<User> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
         Long userId = BbsUtils.formJwtGetUserId(jwt);
-        User user = userService.getUserInfo(userId);
+        User user = userService.queryUserInfo(userId);
         return Result.success(user);
     }
 

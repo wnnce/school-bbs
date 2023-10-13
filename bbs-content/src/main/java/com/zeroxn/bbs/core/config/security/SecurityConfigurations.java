@@ -12,6 +12,9 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.zeroxn.bbs.core.common.JwtService;
+import com.zeroxn.bbs.core.validation.UserTokenValidator;
+import com.zeroxn.bbs.web.mapper.UserMapper;
+import com.zeroxn.bbs.web.service.UserService;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -20,10 +23,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.*;
@@ -121,7 +122,7 @@ public class SecurityConfigurations {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource, UserService userService) {
         Set<JWSAlgorithm> jwsAlgs = new HashSet<>();
         jwsAlgs.addAll(JWSAlgorithm.Family.RSA);
         jwsAlgs.addAll(JWSAlgorithm.Family.EC);
@@ -130,7 +131,9 @@ public class SecurityConfigurations {
         JWSKeySelector<SecurityContext> jwsKeySelector = new JWSVerificationKeySelector<>(jwsAlgs, jwkSource);
         jwtProcessor.setJWSKeySelector(jwsKeySelector);
         jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {});
-        return new NimbusJwtDecoder(jwtProcessor);
+        NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(jwtProcessor);
+        jwtDecoder.setJwtValidator(new UserTokenValidator(userService));
+        return jwtDecoder;
     }
 
     @Bean

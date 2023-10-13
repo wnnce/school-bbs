@@ -88,7 +88,12 @@ public class User implements Serializable {
     private Integer role;
 
     /**
-     * 用户状态 0：正常 1：已禁用 2：已删除
+     * 用户授权 0：正常 1：已禁用
+     */
+    private Integer userAuth;
+
+    /**
+     * 是否删除 0：正常  2：已删除
      */
     @Column(isLogicDelete = true)
     private Integer status;

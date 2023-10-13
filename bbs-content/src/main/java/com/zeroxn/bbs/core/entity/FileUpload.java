@@ -1,5 +1,6 @@
 package com.zeroxn.bbs.core.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
@@ -57,6 +58,14 @@ public class FileUpload implements Serializable {
     /**
      * 文件上传时间
      */
+    @Column(onInsertValue = "current_timestamp")
     private Timestamp uploadTime;
 
+    public FileUpload(String md5, String originName, String fileName, Long size, String url) {
+        this.md5 = md5;
+        this.originName = originName;
+        this.fileName = fileName;
+        this.size = size;
+        this.url = url;
+    }
 }

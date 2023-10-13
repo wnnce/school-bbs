@@ -16,3 +16,9 @@ jwt:
   random-key: false
   public-key-path: classpath:certs/public.pem
   private-key-path: classpath:certs/private.pem
+
+qiniu:
+  access-key: '7ljXDMVJ50r9QHHvqqLT191IWDn8qy3bU3gCwMdY'
+  secret-key: 'CymD_ID_-__AiYbnHbUkIMe1FTFXCnfC52NVEZG2'
+  bucket: 'img-sr'
+  bucket-domain: 'https://image.qiniu.vnc.ink/'
