@@ -1,14 +1,29 @@
 package com.zeroxn.bbs.test;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.zeroxn.bbs.core.cache.MemoryCacheService;
 import com.zeroxn.bbs.core.common.StudentAuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.UUID;
 
 /**
  * @Author: lisang
@@ -16,10 +31,9 @@ import java.util.Scanner;
  * @Description:
  */
 
-@SpringBootTest
 public class SchoolBbsTest {
 
-    @Autowired
+
     private StudentAuthService authService;
     @Test
     public void testMemoryCacheManager() {
@@ -42,5 +56,45 @@ public class SchoolBbsTest {
         Scanner scanner = new Scanner(System.in);
         String code = scanner.nextLine();
         authService.getStudentInfo(studentId, code);
+    }
+
+    @Test
+    public void testJwtEncode() {
+        KeyPair keyPair = generateRsaKey();
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        RSAKey rsaKey = new RSAKey.Builder(publicKey)
+                .privateKey(privateKey)
+                .keyID(UUID.randomUUID().toString())
+                .build();
+        JWKSet jwkSet = new JWKSet(rsaKey);
+        ImmutableJWKSet<SecurityContext> jwkSet1 = new ImmutableJWKSet<>(jwkSet);
+        NimbusJwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSet1);
+        JwtClaimsSet claimsSet = JwtClaimsSet.builder()
+                .id("1")
+                .issuedAt(Instant.now())
+                .notBefore(Instant.now())
+                .expiresAt(Instant.now())
+                .audience(List.of("school_bbs"))
+                .subject("hello world")
+                .issuer("school_bbs")
+                .build();
+        JwtEncoderParameters parameters = JwtEncoderParameters.from(claimsSet);
+        Jwt jwt = jwtEncoder.encode(parameters);
+        System.out.println(jwt.getSubject());
+        System.out.println(jwt.getTokenValue());
+    }
+
+    private static KeyPair generateRsaKey() {
+        KeyPair keyPair;
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+            keyPair = keyPairGenerator.generateKeyPair();
+        }
+        catch (Exception ex) {
+            throw new IllegalStateException(ex);
+        }
+        return keyPair;
     }
 }

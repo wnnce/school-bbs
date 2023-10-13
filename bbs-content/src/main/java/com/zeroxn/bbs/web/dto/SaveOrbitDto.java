@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SaveOrbit {
+public class SaveOrbitDto {
 
     /**
      * 用户Id

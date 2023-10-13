@@ -1,6 +1,9 @@
 package com.zeroxn.bbs.core.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
  * @Author: lisang
@@ -8,7 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @Description:
  */
 public final class BbsUtils {
-
+    private static final Logger logger = LoggerFactory.getLogger(BbsUtils.class);
     public static String getRequestIpAddress(HttpServletRequest request) {
         String address = request.getHeader("X-Forwarded-For");
         if (address == null || address.trim().isEmpty() || "unknown".equalsIgnoreCase(address)) {
@@ -25,5 +28,15 @@ public final class BbsUtils {
             address = address.substring(0, index);
         }
         return address;
+    }
+
+    public static Long formJwtGetUserId(Jwt jwt) {
+        Long userId = null;
+        try {
+            userId = Long.valueOf(jwt.getId());
+        }catch (Exception e) {
+            logger.error("Token获取用户ID失败，subject:{}", jwt.getSubject());
+        }
+        return userId;
     }
 }

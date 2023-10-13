@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.service.impl;
 
 import com.zeroxn.bbs.core.entity.UserOrbit;
-import com.zeroxn.bbs.web.dto.SaveOrbit;
+import com.zeroxn.bbs.web.dto.SaveOrbitDto;
 import com.zeroxn.bbs.core.entity.UserAction;
 import com.zeroxn.bbs.web.mapper.UserActionMapper;
 import com.zeroxn.bbs.web.mapper.UserOrbitMapper;
@@ -9,9 +9,6 @@ import com.zeroxn.bbs.web.service.OtherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * @Author: lisang
@@ -47,7 +44,7 @@ public class OtherServiceImpl implements OtherService {
      * @param ipAddress 用户IP地址
      */
     @Override
-    public void saveUserOrbit(SaveOrbit saveOrbit, String ipAddress) {
+    public void saveUserOrbit(SaveOrbitDto saveOrbit, String ipAddress) {
         String coordinate = saveOrbit.getCoordinate() + "," + saveOrbit.getAltitude();
         UserOrbit userOrbit = UserOrbit.builder()
                 .userId(saveOrbit.getUserId())

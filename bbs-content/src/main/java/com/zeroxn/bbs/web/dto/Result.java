@@ -69,7 +69,7 @@ public class Result<T> {
      * @return 返回数据类
      * @param <T> 泛型
      */
-    public static <T> Result<T> ok(T data) {
+    public static <T> Result<T> success(T data) {
         return new Result<>(HttpStatus.OK, "ok", data);
     }
 

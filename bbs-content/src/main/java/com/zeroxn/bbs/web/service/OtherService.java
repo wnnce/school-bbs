@@ -1,9 +1,7 @@
 package com.zeroxn.bbs.web.service;
 
-import com.zeroxn.bbs.web.dto.SaveOrbit;
+import com.zeroxn.bbs.web.dto.SaveOrbitDto;
 import com.zeroxn.bbs.core.entity.UserAction;
-
-import java.net.UnknownHostException;
 
 /**
  * @Author: lisang
@@ -22,5 +20,5 @@ public interface OtherService {
      * @param saveOrbit 用户位置信息
      * @param ipAddress 用户IP地址
      */
-    void saveUserOrbit(SaveOrbit saveOrbit, String ipAddress);
+    void saveUserOrbit(SaveOrbitDto saveOrbit, String ipAddress);
 }

@@ -1,0 +1,1 @@
+POST {{UserController}}/login?code=openid

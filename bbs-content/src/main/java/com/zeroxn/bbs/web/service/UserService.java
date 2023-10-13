@@ -1,6 +1,9 @@
 package com.zeroxn.bbs.web.service;
 
 import com.zeroxn.bbs.core.entity.User;
+import com.zeroxn.bbs.web.dto.UpdateUserDto;
+
+import java.util.Map;
 
 /**
  * @Author: lisang
@@ -10,4 +13,8 @@ import com.zeroxn.bbs.core.entity.User;
 public interface UserService {
     String login(String code);
     String getUserPhone(String code);
+    User getUserInfo(Long userId);
+    void updateUserInfo(Long userId, UpdateUserDto userDto);
+    boolean sendStudentAuthCode(String studentId);
+    Map<String, Object> studentAuth(String studentId, String code, Long userId);
 }

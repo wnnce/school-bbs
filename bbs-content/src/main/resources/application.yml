@@ -13,7 +13,7 @@ logging:
 springdoc:
   api-docs:
     enabled: true
-    path: /api-docs
+    path: /swagger-ui/api-docs
   packages-to-scan:
     - com.zeroxn.bbs.web.controller
     - com.zeroxn.bbs.core.entity

@@ -2,14 +2,19 @@ package com.zeroxn.bbs.web.controller;
 
 import com.zeroxn.bbs.core.common.StudentAuthService;
 import com.zeroxn.bbs.core.entity.Student;
+import com.zeroxn.bbs.core.entity.User;
+import com.zeroxn.bbs.core.utils.BbsUtils;
 import com.zeroxn.bbs.web.dto.Result;
+import com.zeroxn.bbs.web.dto.UpdateUserDto;
 import com.zeroxn.bbs.web.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 /**
  * @Author: lisang
@@ -20,21 +25,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 @Tag(name = "用户接口")
 public class UserController {
-
     private final UserService userService;
 
-    private final StudentAuthService authService;
-
-    public UserController(UserService userService, StudentAuthService authService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.authService = authService;
     }
 
     @PostMapping("/login")
     @Operation(description = "用户登陆接口")
-    public Result<String> login(@RequestParam("code") String code) {
-        String result = userService.login(code);
-        return Result.ok(result);
+    public Result<Map<String, String>> login(@RequestParam("code") String code) {
+        String token = userService.login(code);
+        return Result.success(Map.of("token", token));
     }
 
     @PostMapping("/phone")
@@ -44,17 +45,35 @@ public class UserController {
         return Result.ok(phone);
     }
 
+    @GetMapping("/userInfo")
+    @Operation(description = "获取用户信息接口")
+    public Result<User> getUserInfo(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        User user = userService.getUserInfo(userId);
+        return Result.success(user);
+    }
+
+    @PutMapping("/userInfo")
+    @Operation(description = "更新用户信息接口")
+    public Result<String> updateUserInfo(@RequestBody @Validated UpdateUserDto userDto, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        userService.updateUserInfo(userId, userDto);
+        return Result.ok();
+    }
+
     @PostMapping("/student/code")
     @Operation(description = "学生认证请求验证码接口")
     public Result<Boolean> getAuthCode(@RequestParam("studentId") String studentId) {
-        boolean result = authService.sendStudentLoginCode(studentId);
-        return Result.ok(result);
+        boolean result = userService.sendStudentAuthCode(studentId);
+        return Result.success(result);
     }
 
     @PostMapping("/student/auth")
     @Operation(description = "学生认证接口")
-    public Result<Student> studentAuth(@RequestParam("studentId") String studentId, @RequestParam("code") String code) {
-        Student studentInfo = authService.getStudentInfo(studentId, code);
-        return Result.ok(studentInfo);
+    public Result<Map<String, Object>> studentAuth(@RequestParam("studentId") String studentId, @RequestParam("code") String code,
+                                       @AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(jwt.getId());
+        Map<String, Object> result = userService.studentAuth(studentId, code, userId);
+        return Result.success(result);
     }
 }

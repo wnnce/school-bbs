@@ -30,7 +30,7 @@ comment on column bbs_user.role is '用户角色 0：普通用户 1：学生用�
 comment on column bbs_user.status is '用户状态 0：正常 1：已禁用 2：已删除';
 
 create table bbs_student (
-     student_id char(6) not null primary key ,
+     student_id char(7s) not null primary key ,
      user_id bigint not null unique ,
      student_name varchar(100) not null ,
      student_phone char(11) not null ,

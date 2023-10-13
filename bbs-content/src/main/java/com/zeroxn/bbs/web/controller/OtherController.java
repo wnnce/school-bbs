@@ -1,17 +1,14 @@
 package com.zeroxn.bbs.web.controller;
 
 import com.zeroxn.bbs.core.utils.BbsUtils;
-import com.zeroxn.bbs.web.dto.SaveOrbit;
+import com.zeroxn.bbs.web.dto.SaveOrbitDto;
 import com.zeroxn.bbs.core.entity.UserAction;
 import com.zeroxn.bbs.web.service.OtherService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author: lisang
@@ -46,7 +43,7 @@ public class OtherController {
      */
     @PostMapping("/orbit")
     @Operation(description = "保存用户位置信息接口")
-    public void saveUserOrbit(HttpServletRequest request, @RequestBody @Validated SaveOrbit saveOrbit){
+    public void saveUserOrbit(HttpServletRequest request, @RequestBody @Validated SaveOrbitDto saveOrbit){
         String ipAddress = BbsUtils.getRequestIpAddress(request);
         otherService.saveUserOrbit(saveOrbit, ipAddress);
     }
