@@ -15,8 +15,9 @@ springdoc:
     enabled: true
     path: /api-docs
   packages-to-scan:
-    - com.zeroxn.bbs.controller
-    - com.zeroxn.bbs.model
+    - com.zeroxn.bbs.web.controller
+    - com.zeroxn.bbs.core.entity
+    - com.zeroxn.bbs.web.dto
 mybatis-flex:
   mapper-locations: classpath:/mappers/*.xml
   type-aliases-package: com.zeroxn.bbs.model.entity

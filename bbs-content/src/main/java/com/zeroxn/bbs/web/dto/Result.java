@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.model.dto;
+package com.zeroxn.bbs.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -39,7 +39,7 @@ public class Result<T> {
      * @param message 错误消息
      * @return 返回数据类
      */
-    private static Result<String> failed(HttpStatus status, String message) {
+    public static Result<String> failed(HttpStatus status, String message) {
         return new Result<>(status, message);
     }
 
@@ -48,7 +48,7 @@ public class Result<T> {
      * @param message 错误消息
      * @return 返回http错误码400的数据类
      */
-    private static Result<String> failed(String message) {
+    public static Result<String> failed(String message) {
         return new Result<>(HttpStatus.BAD_REQUEST, message);
     }
 
@@ -59,7 +59,7 @@ public class Result<T> {
      * @return 返回数据类
      * @param <T> 泛型
      */
-    private static <T> Result<T> ok(String message, T data) {
+    public static <T> Result<T> ok(String message, T data) {
         return new Result<>(HttpStatus.OK, message, data);
     }
 
@@ -69,15 +69,15 @@ public class Result<T> {
      * @return 返回数据类
      * @param <T> 泛型
      */
-    private static <T> Result<T> ok(T data) {
+    public static <T> Result<T> ok(T data) {
         return new Result<>(HttpStatus.OK, "ok", data);
     }
 
-    private static Result<String> ok(String message) {
+    public static Result<String> ok(String message) {
         return new Result<>(HttpStatus.OK, message);
     }
 
-    private static Result<String> ok() {
+    public static Result<String> ok() {
         return new Result<>(HttpStatus.OK, "ok");
     }
 

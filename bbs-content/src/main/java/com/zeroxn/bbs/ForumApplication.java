@@ -1,5 +1,6 @@
 package com.zeroxn.bbs;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @Description: 论坛程序启动类
  */
 @SpringBootApplication
+@MapperScan("com.zeroxn.bbs.web.mapper")
 public class ForumApplication {
     public static void main(String[] args) {
         SpringApplication.run(ForumApplication.class, args);
