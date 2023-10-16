@@ -10,8 +10,10 @@ import com.zeroxn.bbs.core.entity.User;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import com.zeroxn.bbs.web.dto.UpdateUserDto;
 import com.zeroxn.bbs.web.mapper.StudentMapper;
+import com.zeroxn.bbs.web.mapper.UserExtrasMapper;
 import com.zeroxn.bbs.web.mapper.UserMapper;
 import com.zeroxn.bbs.web.service.UserService;
+import com.zeroxn.bbs.web.service.async.GlobalAsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -37,16 +39,21 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final StudentAuthService authService;
     private final UserMapper userMapper;
+    private final UserExtrasMapper extrasMapper;
     private final StudentMapper studentMapper;
+    private final GlobalAsyncTask asyncTask;
 
 
     public UserServiceImpl(WechatService wechatService, UserMapper userMapper, JwtService jwtService,
-                           StudentMapper studentMapper, StudentAuthService authService) {
+                           StudentMapper studentMapper, StudentAuthService authService, GlobalAsyncTask asyncTask,
+                           UserExtrasMapper extrasMapper) {
         this.wechatService = wechatService;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
         this.studentMapper = studentMapper;
         this.authService = authService;
+        this.asyncTask = asyncTask;
+        this.extrasMapper = extrasMapper;
     }
     @Override
     public String login(String openId) {
@@ -73,6 +80,8 @@ public class UserServiceImpl implements UserService {
             logger.error("保存用户失败");
             ExceptionUtils.throwServerException("登录失败");
         }
+        // 异步初始化用户的额外信息
+        asyncTask.initUserExtraInit(user.getId());
         return jwtService.generateToken(user.getId().toString(), user.getOpenid(), Set.of("user"));
     }
 
@@ -94,6 +103,12 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userDto, user);
         user.setId(userId);
         userMapper.update(user);
+    }
+
+    @Override
+    public void deleteTopicAfterUpdateUserStars(Integer topicId) {
+        int result = extrasMapper.deleteTopicAfterUpdateUserStars(topicId);
+        logger.info("删除帖子后移除用户收藏，TopicId:{}，受影响的用户数：{}", topicId, result);
     }
 
     @Override

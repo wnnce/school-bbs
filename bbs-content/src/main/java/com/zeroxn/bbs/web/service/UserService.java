@@ -15,6 +15,7 @@ public interface UserService {
     String getUserPhone(String code);
     User queryUserInfo(Long userId);
     void updateUserInfo(Long userId, UpdateUserDto userDto);
+    void deleteTopicAfterUpdateUserStars(Integer topicId);
     boolean sendStudentAuthCode(String studentId);
     Map<String, Object> studentAuth(String studentId, String code, Long userId);
 }

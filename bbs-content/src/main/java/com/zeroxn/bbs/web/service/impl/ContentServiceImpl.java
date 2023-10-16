@@ -5,6 +5,7 @@ import com.zeroxn.bbs.core.entity.ForumTopic;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
 import com.zeroxn.bbs.web.service.ContentService;
+import com.zeroxn.bbs.web.service.UserService;
 import com.zeroxn.bbs.web.service.async.GlobalAsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,13 @@ import static com.zeroxn.bbs.core.entity.table.ForumTopicTableDef.FORUM_TOPIC;
 public class ContentServiceImpl implements ContentService {
     private static final Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
     private final ForumTopicMapper topicMapper;
+    private final UserService userService;
     private final GlobalAsyncTask asyncTask;
 
-    public ContentServiceImpl(ForumTopicMapper topicMapper, GlobalAsyncTask asyncTask) {
+    public ContentServiceImpl(ForumTopicMapper topicMapper, GlobalAsyncTask asyncTask, UserService userService) {
         this.topicMapper = topicMapper;
         this.asyncTask = asyncTask;
+        this.userService = userService;
     }
 
     @Override
@@ -57,7 +60,9 @@ public class ContentServiceImpl implements ContentService {
         ExceptionUtils.isConditionThrowRequest(findTopic == null, "需要删除的内容不存在");
         ExceptionUtils.isConditionThrowRequest(findTopic.getUserId() != userId, "该用户无删除权限");
         topicMapper.deleteById(topicId);
-        // todo 同时删除用户的收藏
+        userService.deleteTopicAfterUpdateUserStars(topicId);
         logger.info("删除Topic成功，topicId：{}", topicId);
     }
+
+
 }

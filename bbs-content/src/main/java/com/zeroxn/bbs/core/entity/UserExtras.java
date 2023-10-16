@@ -1,5 +1,6 @@
 package com.zeroxn.bbs.core.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
@@ -41,6 +42,7 @@ public class UserExtras implements Serializable {
     /**
      * 最后更新时间
      */
+    @Column(onInsertValue = "current_timestamp", onUpdateValue = "current_timestamp")
     private LocalDateTime updateTime;
 
     /**

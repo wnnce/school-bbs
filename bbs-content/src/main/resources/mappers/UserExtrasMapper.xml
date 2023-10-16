@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroxn.bbs.web.mapper.UserExtrasMapper">
+    <update id="deleteTopicAfterUpdateUserStars">
+        update bbs_user_extras set topic_stars = array_remove(topic_stars, ${topicId}) where ${topicId} = ANY (topic_stars);
+    </update>
+</mapper>
