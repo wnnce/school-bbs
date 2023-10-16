@@ -5,8 +5,10 @@ import com.zeroxn.bbs.core.utils.BbsUtils;
 import com.zeroxn.bbs.core.validation.ValidationGroups.SaveTopicValidation;
 import com.zeroxn.bbs.core.validation.ValidationGroups.SavePostValidation;
 import com.zeroxn.bbs.web.dto.Result;
+import com.zeroxn.bbs.web.dto.UserTopicDto;
 import com.zeroxn.bbs.web.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -46,12 +48,39 @@ public class ContentController {
         return Result.ok();
     }
 
+    @GetMapping("/{id}")
+    @Operation(description = "获取帖子/话题详情接口")
+    @Parameter(name = "id", description = "话题/帖子ID", required = true)
+    public Result<UserTopicDto> queryTopicInfo(@PathVariable("id") Integer topicId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        UserTopicDto topicDto = contentService.queryTopic(topicId, userId);
+        return Result.success(topicDto);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(description = "删除帖子接口")
+    @Parameter(name = "id", description = "帖子/话题ID", required = true)
     public Result<Void> deleteTopic(@PathVariable("id") Integer topicId, @AuthenticationPrincipal Jwt jwt) {
         Long userId = BbsUtils.formJwtGetUserId(jwt);
         contentService.deleteTopic(topicId, userId);
         return Result.ok();
     }
 
+    @PostMapping("/star/{id}")
+    @Operation(description = "用户收藏帖子接口")
+    @Parameter(name = "id", description = "话题/帖子ID", required = true)
+    public Result<Void> userStarTopic(@PathVariable("id") Integer topicId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        contentService.starTopic(topicId, userId);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/unstar/{id}")
+    @Operation(description = "用户取消收藏按钮")
+    @Parameter(name = "id", description = "帖子/话题ID", required = true)
+    public Result<Void> userUnStarTopic(@PathVariable("id") Integer topicId, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        contentService.unStartTopic(topicId, userId);
+        return Result.ok();
+    }
 }

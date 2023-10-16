@@ -10,10 +10,12 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.zeroxn.bbs.core.mybatis.handlers.ArrayTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.type.JdbcType;
 
 /**
  * 用户额外信息表 实体类。
@@ -48,6 +50,7 @@ public class UserExtras implements Serializable {
     /**
      * 用户收藏的帖子/话题列表
      */
-    private List<Integer> topicStars;
+    @Column(jdbcType = JdbcType.ARRAY, typeHandler = ArrayTypeHandler.class)
+    private Integer[] topicStars;
 
 }

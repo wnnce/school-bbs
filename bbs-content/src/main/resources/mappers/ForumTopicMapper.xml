@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroxn.bbs.web.mapper.ForumTopicMapper">
+    <sql id="all_column">
+        id, title, content, content_key, image_urls, video_url, type, flag, label_ids, is_hot, view_count, start_count, create_time, user_id, status
+    </sql>
+
+    <select id="queryTopic" resultType="UserTopicDto">
+        select * from
+         (select * from bbs_forum_topic where id = ${topicId}) as t1,
+         (select topic_stars @> ARRAY [${topicId}] as is_star from bbs_user_extras where user_id = ${userId}) as u1;
+    </select>
+</mapper>

@@ -39,21 +39,18 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
     private final StudentAuthService authService;
     private final UserMapper userMapper;
-    private final UserExtrasMapper extrasMapper;
     private final StudentMapper studentMapper;
     private final GlobalAsyncTask asyncTask;
 
 
     public UserServiceImpl(WechatService wechatService, UserMapper userMapper, JwtService jwtService,
-                           StudentMapper studentMapper, StudentAuthService authService, GlobalAsyncTask asyncTask,
-                           UserExtrasMapper extrasMapper) {
+                           StudentMapper studentMapper, StudentAuthService authService, GlobalAsyncTask asyncTask) {
         this.wechatService = wechatService;
         this.userMapper = userMapper;
         this.jwtService = jwtService;
         this.studentMapper = studentMapper;
         this.authService = authService;
         this.asyncTask = asyncTask;
-        this.extrasMapper = extrasMapper;
     }
     @Override
     public String login(String openId) {
@@ -103,12 +100,6 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userDto, user);
         user.setId(userId);
         userMapper.update(user);
-    }
-
-    @Override
-    public void deleteTopicAfterUpdateUserStars(Integer topicId) {
-        int result = extrasMapper.deleteTopicAfterUpdateUserStars(topicId);
-        logger.info("删除帖子后移除用户收藏，TopicId:{}，受影响的用户数：{}", topicId, result);
     }
 
     @Override

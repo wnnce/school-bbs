@@ -5,10 +5,9 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
-import java.sql.Array;
 import java.time.LocalDateTime;
-import java.util.List;
 
+import com.zeroxn.bbs.core.mybatis.handlers.ArrayTypeHandler;
 import com.zeroxn.bbs.core.validation.ValidationGroups.SavePostValidation;
 import com.zeroxn.bbs.core.validation.ValidationGroups.SaveTopicValidation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +19,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.ibatis.type.JdbcType;
 import org.hibernate.validator.constraints.Length;
 
 /**
@@ -65,7 +65,8 @@ public class ForumTopic implements Serializable {
      * 图片连接数组
      */
     @Schema(description = "话题帖子的图片链接数组", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    private List<String> imageUrls;
+    @Column(jdbcType = JdbcType.ARRAY, typeHandler = ArrayTypeHandler.class)
+    private String[] imageUrls;
 
     /**
      * 视频链接
@@ -90,7 +91,8 @@ public class ForumTopic implements Serializable {
      * 话题的标签列表，帖子则为空
      */
     @NotNull(message = "话题标签不能为空", groups = { SaveTopicValidation.class })
-    private List<Integer> labelIds;
+    @Column(jdbcType = JdbcType.ARRAY, typeHandler = ArrayTypeHandler.class)
+    private Integer[] labelIds;
 
     /**
      * 是否热门话题

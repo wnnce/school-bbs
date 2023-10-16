@@ -12,4 +12,7 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface UserExtrasMapper extends BaseMapper<UserExtras> {
     int deleteTopicAfterUpdateUserStars(@Param("topicId") Integer topicId);
+    int countUserStarByTopicId(@Param("topicId") Integer topicId, @Param("userId") Long userId);
+    int saveTopicStar(@Param("topicId") Integer topicId, @Param("userId") Long userId);
+    int deleteTopicStar(@Param("topicId") Integer topicId, @Param("userId") Long userId);
 }
