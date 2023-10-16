@@ -7,5 +7,7 @@ package com.zeroxn.bbs.core.validation;
  */
 public class ValidationGroups {
     public interface SaveValidation {};
+    public interface SavePostValidation {};
+    public interface SaveTopicValidation {};
     public interface UpdateValidation {};
 }

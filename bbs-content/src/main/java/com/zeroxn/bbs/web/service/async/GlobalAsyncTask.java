@@ -1,6 +1,7 @@
 package com.zeroxn.bbs.web.service.async;
 
 import com.zeroxn.bbs.core.entity.FileUpload;
+import com.zeroxn.bbs.core.entity.ForumTopic;
 import com.zeroxn.bbs.web.mapper.FileUploadMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,18 @@ public class GlobalAsyncTask {
             FileUpload fileUpload = new FileUpload(md5, originName, fileName, size, fileUrl);
             int result = uploadMapper.insertSelective(fileUpload);
             logger.info("保存文件上传日志，文件名称：{},影响行数：{}", originName, result);
+        });
+    }
+
+    public void handlerTopicContentKey(ForumTopic topic) {
+        CompletableFuture.runAsync(() -> {
+           logger.info("生成帖子关键字");
+        });
+    }
+
+    public void handlerTopicPropose(ForumTopic topic) {
+        CompletableFuture.runAsync(() -> {
+            logger.info("处理话题推送");
         });
     }
 }

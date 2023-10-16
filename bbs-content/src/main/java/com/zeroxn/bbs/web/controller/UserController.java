@@ -40,7 +40,7 @@ public class UserController {
     @Operation(description = "获取用户手机号接口")
     public Result<String> getUserPhone(@RequestParam("code") String code) {
         String phone = userService.getUserPhone(code);
-        return Result.ok(phone);
+        return Result.success(phone);
     }
 
     @GetMapping("/userInfo")
@@ -53,7 +53,7 @@ public class UserController {
 
     @PutMapping("/userInfo")
     @Operation(description = "更新用户信息接口")
-    public Result<String> updateUserInfo(@RequestBody @Validated UpdateUserDto userDto, @AuthenticationPrincipal Jwt jwt) {
+    public Result<Void> updateUserInfo(@RequestBody @Validated UpdateUserDto userDto, @AuthenticationPrincipal Jwt jwt) {
         Long userId = BbsUtils.formJwtGetUserId(jwt);
         userService.updateUserInfo(userId, userDto);
         return Result.ok();

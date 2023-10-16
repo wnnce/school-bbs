@@ -73,11 +73,11 @@ public class Result<T> {
         return new Result<>(HttpStatus.OK, "ok", data);
     }
 
-    public static Result<String> ok(String message) {
+    public static Result<Void> ok(String message) {
         return new Result<>(HttpStatus.OK, message);
     }
 
-    public static Result<String> ok() {
+    public static Result<Void> ok() {
         return new Result<>(HttpStatus.OK, "ok");
     }
 
