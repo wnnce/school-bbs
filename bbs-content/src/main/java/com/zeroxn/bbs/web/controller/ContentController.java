@@ -1,9 +1,12 @@
 package com.zeroxn.bbs.web.controller;
 
+import com.mybatisflex.core.paginate.Page;
 import com.zeroxn.bbs.core.entity.ForumTopic;
 import com.zeroxn.bbs.core.utils.BbsUtils;
 import com.zeroxn.bbs.core.validation.ValidationGroups.SaveTopicValidation;
 import com.zeroxn.bbs.core.validation.ValidationGroups.SavePostValidation;
+import com.zeroxn.bbs.web.dto.PageQueryDto;
+import com.zeroxn.bbs.web.dto.QueryPostDto;
 import com.zeroxn.bbs.web.dto.Result;
 import com.zeroxn.bbs.web.dto.UserTopicDto;
 import com.zeroxn.bbs.web.service.ContentService;
@@ -46,6 +49,27 @@ public class ContentController {
         post.setUserId(userId);
         contentService.savePost(post);
         return Result.ok();
+    }
+
+    @GetMapping("/post/list")
+    @Operation(description = "获取帖子列表接口")
+    public Result<Page<UserTopicDto>> listPageForumPost(@Validated QueryPostDto postDto) {
+        Page<UserTopicDto> topicDtoPage = contentService.pageForumPost(postDto);
+        return Result.success(topicDtoPage);
+    }
+
+    @GetMapping("/topic/hot")
+    @Operation(description = "获取热门话题")
+    public Result<Page<UserTopicDto>> listHotTopic(@Validated PageQueryDto pageDto) {
+        Page<UserTopicDto> hotTopicPage = contentService.pageHotTopic(pageDto);
+        return Result.success(hotTopicPage);
+    }
+    @GetMapping("/topic/propose")
+    @Operation(description = "获取用户最相关话题")
+    public Result<Page<UserTopicDto>> listUserProposeTopic(@Validated PageQueryDto pageDto, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        Page<UserTopicDto> proposeTopicPage = contentService.pageProposeTopic(pageDto, userId);
+        return Result.success(proposeTopicPage);
     }
 
     @GetMapping("/{id}")

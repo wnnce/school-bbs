@@ -15,9 +15,9 @@ public class ArrayTypeHandler extends BaseTypeHandler<Object[]> {
     public void setNonNullParameter(PreparedStatement ps, int i, Object[] parameter, JdbcType jdbcType) throws SQLException {
         String typename = null;
         if (parameter instanceof Integer[]) {
-            typename = "varchar";
-        } else if (parameter instanceof String[]) {
             typename = "integer";
+        } else if (parameter instanceof String[]) {
+            typename = "varchar";
         }
         if (typename == null) {
             throw new TypeException("ArrayTypeHandle error, type:" + parameter.getClass().getName());

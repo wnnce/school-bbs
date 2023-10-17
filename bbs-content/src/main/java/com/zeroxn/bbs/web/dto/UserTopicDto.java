@@ -14,4 +14,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class UserTopicDto extends ForumTopic {
     private Boolean isStar;
+
+    private Integer commentCount;
 }

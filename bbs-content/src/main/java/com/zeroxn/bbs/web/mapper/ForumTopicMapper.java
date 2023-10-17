@@ -5,6 +5,10 @@ import com.zeroxn.bbs.core.entity.ForumTopic;
 import com.zeroxn.bbs.web.dto.UserTopicDto;
 import org.apache.ibatis.annotations.Param;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * 论坛帖子/话题信息表 映射层。
  *

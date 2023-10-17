@@ -1,10 +1,13 @@
 package com.zeroxn.bbs.core.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,7 +45,8 @@ public class ProposeTopic implements Serializable {
     /**
      * 推送创建时间
      */
-    private Timestamp createTime;
+    @Column(onInsertValue = "current_timestamp")
+    private LocalDateTime createTime;
 
     /**
      * 话题与用户的相关度
