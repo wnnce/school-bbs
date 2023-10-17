@@ -5,7 +5,13 @@
         id, title, content, content_key, image_urls, video_url, type, flag, label_ids, is_hot, view_count, start_count, create_time, user_id, status
     </sql>
 
-    <select id="queryTopic" resultType="UserTopicDto">
+    <resultMap id="userTopicMap" type="com.zeroxn.bbs.web.dto.UserTopicDto">
+        <id column="id" property="id" />
+        <result column="image_urls" property="imageUrls" typeHandler="com.zeroxn.bbs.core.mybatis.handlers.ArrayTypeHandler" />
+        <result column="is_star" property="isStar" />
+    </resultMap>
+
+    <select id="queryTopic" resultMap="userTopicMap">
         select * from
          (select * from bbs_forum_topic where id = ${topicId}) as t1,
          (select topic_stars @> ARRAY [${topicId}] as is_star from bbs_user_extras where user_id = ${userId}) as u1;

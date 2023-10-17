@@ -1,7 +1,9 @@
 package com.zeroxn.bbs.web.service.async;
 
+import com.mybatisflex.core.update.UpdateChain;
 import com.zeroxn.bbs.core.entity.*;
 import com.zeroxn.bbs.web.mapper.FileUploadMapper;
+import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
 import com.zeroxn.bbs.web.mapper.UserExtrasMapper;
 import com.zeroxn.bbs.web.mapper.UserProfileMapper;
 import org.slf4j.Logger;
@@ -23,15 +25,18 @@ public class GlobalAsyncTask {
     /**
      * 异步任务线程池，线程数量为当前CPU的内核数量
      */
-    private static final ExecutorService  executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private final FileUploadMapper uploadMapper;
     private final UserExtrasMapper extrasMapper;
     private final UserProfileMapper profileMapper;
+    private final ForumTopicMapper topicMapper;
 
-    public GlobalAsyncTask(FileUploadMapper uploadMapper, UserExtrasMapper extrasMapper, UserProfileMapper profileMapper) {
+    public GlobalAsyncTask(FileUploadMapper uploadMapper, UserExtrasMapper extrasMapper, UserProfileMapper profileMapper,
+                           ForumTopicMapper topicMapper) {
         this.uploadMapper = uploadMapper;
         this.extrasMapper = extrasMapper;
         this.profileMapper = profileMapper;
+        this.topicMapper = topicMapper;
     }
 
     /**
@@ -79,6 +84,31 @@ public class GlobalAsyncTask {
     public void handlerTopicPropose(ForumTopic topic) {
         this.executeVoidAsyncFunction(() -> {
             logger.info("处理话题推送");
+        });
+    }
+
+    public void updateTopicStarCount(Integer topicId, int count, boolean isAdd) {
+        String rowOption;
+        if (isAdd) {
+            rowOption = "+" + count;
+        }else {
+            rowOption = "-" + count;
+        }
+        this.executeVoidAsyncFunction(() -> {
+            boolean result = UpdateChain.of(ForumTopic.class)
+                    .setRaw(ForumTopic::getStarCount, "star_count" + rowOption)
+                    .where(ForumTopic::getId).eq(topicId)
+                    .update();
+            logger.info("更新帖子收藏次数，TopicId：{}, count:{}, isAdd:{},影响行数：{}", topicId, count, isAdd, result);
+        });
+    }
+
+    public void appendTopicViewCount(Integer topicId, int count) {
+        this.executeVoidAsyncFunction(() -> {
+            UpdateChain.of(ForumTopic.class)
+                    .setRaw(ForumTopic::getViewCount, "view_count + " + count)
+                    .where(ForumTopic::getId).eq(topicId)
+                    .update();
         });
     }
 }

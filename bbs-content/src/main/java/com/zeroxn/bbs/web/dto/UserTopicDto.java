@@ -13,5 +13,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserTopicDto extends ForumTopic {
-    private boolean isStar;
+    private Boolean isStar;
 }

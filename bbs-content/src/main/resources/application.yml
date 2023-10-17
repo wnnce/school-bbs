@@ -20,6 +20,6 @@ springdoc:
     - com.zeroxn.bbs.web.dto
 mybatis-flex:
   mapper-locations: classpath:/mappers/*.xml
-  type-aliases-package: com.zeroxn.bbs.core.entity,com.zeroxn.bbs.web.dto
+  type-aliases-package: com.zeroxn.bbs.core.entity
   configuration:
     map-underscore-to-camel-case: true

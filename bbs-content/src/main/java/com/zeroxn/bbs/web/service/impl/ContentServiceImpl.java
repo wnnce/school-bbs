@@ -58,6 +58,7 @@ public class ContentServiceImpl implements ContentService {
     public UserTopicDto queryTopic(Integer topicId, Long userId) {
         UserTopicDto topicDto = topicMapper.queryTopic(topicId, userId);
         ExceptionUtils.isConditionThrow(topicDto == null, HttpStatus.NOT_FOUND, "资源不存在");
+        asyncTask.appendTopicViewCount(topicId, 1);
         return topicDto;
     }
 
@@ -79,10 +80,12 @@ public class ContentServiceImpl implements ContentService {
         int findCount = extrasMapper.countUserStarByTopicId(topicId, userId);
         ExceptionUtils.isConditionThrowRequest(findCount > 0, "当前帖子已经被收藏了");
         extrasMapper.saveTopicStar(topicId, userId);
+        asyncTask.updateTopicStarCount(topicId, 1, true);
     }
 
     @Override
     public void unStartTopic(Integer topicId, Long userId) {
         extrasMapper.deleteTopicStar(topicId, userId);
+        asyncTask.updateTopicStarCount(topicId, 1, false);
     }
 }

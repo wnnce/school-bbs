@@ -6,6 +6,8 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.zeroxn.bbs.core.cache.MemoryCacheService;
 import com.zeroxn.bbs.core.common.StudentAuthService;
+import com.zeroxn.bbs.core.entity.ForumTopic;
+import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,9 +32,10 @@ import java.util.UUID;
  * @DateTime: 2023-10-12 19:41:43
  * @Description:
  */
-
+@SpringBootTest
 public class SchoolBbsTest {
-
+    @Autowired
+    ForumTopicMapper topicMapper;
 
     private StudentAuthService authService;
     @Test
@@ -96,5 +99,11 @@ public class SchoolBbsTest {
             throw new IllegalStateException(ex);
         }
         return keyPair;
+    }
+
+    @Test
+    public void testTypeHandler() {
+        ForumTopic topic = topicMapper.selectOneById(10);
+        System.out.println(topic.getImageUrls());
     }
 }

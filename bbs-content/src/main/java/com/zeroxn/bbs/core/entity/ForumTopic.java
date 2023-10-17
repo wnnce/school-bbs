@@ -107,7 +107,7 @@ public class ForumTopic implements Serializable {
     /**
      * 收藏次数
      */
-    private Integer startCount;
+    private Integer starCount;
 
     /**
      * 创建时间
