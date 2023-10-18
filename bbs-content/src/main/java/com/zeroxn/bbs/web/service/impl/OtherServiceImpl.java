@@ -1,8 +1,8 @@
 package com.zeroxn.bbs.web.service.impl;
 
-import com.zeroxn.bbs.core.entity.UserOrbit;
+import com.zeroxn.bbs.base.entity.UserOrbit;
 import com.zeroxn.bbs.web.dto.SaveOrbitDto;
-import com.zeroxn.bbs.core.entity.UserAction;
+import com.zeroxn.bbs.base.entity.UserAction;
 import com.zeroxn.bbs.web.mapper.UserActionMapper;
 import com.zeroxn.bbs.web.mapper.UserOrbitMapper;
 import com.zeroxn.bbs.web.service.OtherService;

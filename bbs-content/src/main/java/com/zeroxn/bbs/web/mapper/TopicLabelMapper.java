@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.TopicLabel;
+import com.zeroxn.bbs.base.entity.TopicLabel;
 
 /**
  * 话题标签表 映射层。

@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.service;
 
 import com.mybatisflex.core.paginate.Page;
-import com.zeroxn.bbs.core.entity.Comment;
+import com.zeroxn.bbs.base.entity.Comment;
 import com.zeroxn.bbs.web.dto.CommentTreeDto;
 import com.zeroxn.bbs.web.dto.PageQueryDto;
 

@@ -1,6 +1,6 @@
-package com.zeroxn.bbs.core.validation;
+package com.zeroxn.bbs.core.config.security;
 
-import com.zeroxn.bbs.core.entity.User;
+import com.zeroxn.bbs.base.entity.User;
 import com.zeroxn.bbs.web.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

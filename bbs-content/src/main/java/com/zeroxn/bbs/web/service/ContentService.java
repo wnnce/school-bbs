@@ -1,10 +1,11 @@
 package com.zeroxn.bbs.web.service;
 
 import com.mybatisflex.core.paginate.Page;
-import com.zeroxn.bbs.core.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.web.dto.PageQueryDto;
 import com.zeroxn.bbs.web.dto.QueryPostDto;
 import com.zeroxn.bbs.web.dto.UserTopicDto;
+import com.zeroxn.bbs.web.dto.UserTopicQueryDto;
 
 /**
  * @Author: lisang
@@ -21,4 +22,6 @@ public interface ContentService {
     void deleteTopic(Integer topicId, Long userId);
     void starTopic(Integer topicId, Long userId);
     void unStartTopic(Integer topicId, Long userId);
+    Page<UserTopicDto> pageUserPublishTopic(UserTopicQueryDto userTopicDto, Long userId);
+    Page<UserTopicDto> pageUserStarTopic(UserTopicQueryDto userTopicDto, Long userId);
 }

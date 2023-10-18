@@ -1,10 +1,13 @@
-package com.zeroxn.bbs.core.entity;
+package com.zeroxn.bbs.base.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,11 +40,13 @@ public class TopicLabel implements Serializable {
     /**
      * 标签创建时间
      */
-    private Timestamp createTime;
+    @Column(onInsertValue = "current_timestamp")
+    private LocalDateTime createTime;
 
     /**
      * 状态 0：正常 1：删除
      */
+    @Column(isLogicDelete = true)
     private Integer status;
 
 }

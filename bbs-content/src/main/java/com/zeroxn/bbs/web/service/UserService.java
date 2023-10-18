@@ -1,6 +1,6 @@
 package com.zeroxn.bbs.web.service;
 
-import com.zeroxn.bbs.core.entity.User;
+import com.zeroxn.bbs.base.entity.User;
 import com.zeroxn.bbs.web.dto.UpdateUserDto;
 
 import java.util.Map;

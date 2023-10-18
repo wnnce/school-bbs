@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.UserMessage;
+import com.zeroxn.bbs.base.entity.UserMessage;
 
 /**
  * 用户消息表 映射层。

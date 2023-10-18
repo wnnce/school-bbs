@@ -7,7 +7,7 @@
 
     <resultMap id="userTopicMap" type="com.zeroxn.bbs.web.dto.UserTopicDto">
         <id column="id" property="id" />
-        <result column="image_urls" property="imageUrls" typeHandler="com.zeroxn.bbs.core.mybatis.handlers.ArrayTypeHandler" />
+        <result column="image_urls" property="imageUrls" typeHandler="com.zeroxn.bbs.base.mybatis.handlers.ArrayTypeHandler" />
         <result column="is_star" property="isStar" />
         <result column="comment_count" property="commentCount" />
     </resultMap>

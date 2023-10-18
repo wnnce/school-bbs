@@ -1,7 +1,10 @@
 package com.zeroxn.bbs.web.service.async;
 
 import com.mybatisflex.core.update.UpdateChain;
-import com.zeroxn.bbs.core.entity.*;
+import com.zeroxn.bbs.base.entity.FileUpload;
+import com.zeroxn.bbs.base.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.UserExtras;
+import com.zeroxn.bbs.base.entity.UserProfile;
 import com.zeroxn.bbs.web.mapper.FileUploadMapper;
 import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
 import com.zeroxn.bbs.web.mapper.UserExtrasMapper;

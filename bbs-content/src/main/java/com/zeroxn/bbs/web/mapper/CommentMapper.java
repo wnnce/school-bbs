@@ -1,11 +1,8 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.Comment;
-import com.zeroxn.bbs.web.dto.CommentTreeDto;
+import com.zeroxn.bbs.base.entity.Comment;
 import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 统一评论表 映射层。

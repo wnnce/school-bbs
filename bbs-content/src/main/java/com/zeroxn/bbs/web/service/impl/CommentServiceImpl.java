@@ -3,7 +3,7 @@ package com.zeroxn.bbs.web.service.impl;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
-import com.zeroxn.bbs.core.entity.Comment;
+import com.zeroxn.bbs.base.entity.Comment;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import com.zeroxn.bbs.web.dto.CommentTreeDto;
 import com.zeroxn.bbs.web.dto.PageQueryDto;

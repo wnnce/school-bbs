@@ -1,14 +1,11 @@
 package com.zeroxn.bbs.web.controller;
 
 import com.mybatisflex.core.paginate.Page;
-import com.zeroxn.bbs.core.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.core.utils.BbsUtils;
-import com.zeroxn.bbs.core.validation.ValidationGroups.SaveTopicValidation;
-import com.zeroxn.bbs.core.validation.ValidationGroups.SavePostValidation;
-import com.zeroxn.bbs.web.dto.PageQueryDto;
-import com.zeroxn.bbs.web.dto.QueryPostDto;
-import com.zeroxn.bbs.web.dto.Result;
-import com.zeroxn.bbs.web.dto.UserTopicDto;
+import com.zeroxn.bbs.base.validation.ValidationGroups.SaveTopicValidation;
+import com.zeroxn.bbs.base.validation.ValidationGroups.SavePostValidation;
+import com.zeroxn.bbs.web.dto.*;
 import com.zeroxn.bbs.web.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -106,5 +103,23 @@ public class ContentController {
         Long userId = BbsUtils.formJwtGetUserId(jwt);
         contentService.unStartTopic(topicId, userId);
         return Result.ok();
+    }
+
+    @GetMapping("/user/list")
+    @Operation(description = "获取用户发布的所有帖子/话题")
+    public Result<Page<UserTopicDto>> listUserPublishTopic(@Validated UserTopicQueryDto userTopicDto,
+                                                           @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        Page<UserTopicDto> topicDtoPage = contentService.pageUserPublishTopic(userTopicDto, userId);
+        return Result.success(topicDtoPage);
+    }
+
+    @GetMapping("/star/list")
+    @Operation(description = "获取用户收藏的所有帖子/话题")
+    public Result<Page<UserTopicDto>> listUserStarTopic(@Validated UserTopicQueryDto userTopicDto,
+                                                        @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        Page<UserTopicDto> topicDtoPage = contentService.pageUserStarTopic(userTopicDto, userId);
+        return Result.success(topicDtoPage);
     }
 }

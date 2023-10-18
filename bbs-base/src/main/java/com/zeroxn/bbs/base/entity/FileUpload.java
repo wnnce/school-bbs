@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.entity;
+package com.zeroxn.bbs.base.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;

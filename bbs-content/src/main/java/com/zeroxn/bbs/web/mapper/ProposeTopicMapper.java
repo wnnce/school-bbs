@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.ProposeTopic;
+import com.zeroxn.bbs.base.entity.ProposeTopic;
 import org.apache.ibatis.annotations.Param;
 
 /**

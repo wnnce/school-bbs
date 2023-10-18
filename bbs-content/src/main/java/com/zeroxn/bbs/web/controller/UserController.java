@@ -1,6 +1,6 @@
 package com.zeroxn.bbs.web.controller;
 
-import com.zeroxn.bbs.core.entity.User;
+import com.zeroxn.bbs.base.entity.User;
 import com.zeroxn.bbs.core.utils.BbsUtils;
 import com.zeroxn.bbs.web.dto.Result;
 import com.zeroxn.bbs.web.dto.UpdateUserDto;

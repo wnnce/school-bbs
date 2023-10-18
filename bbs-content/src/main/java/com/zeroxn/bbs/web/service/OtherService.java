@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.service;
 
 import com.zeroxn.bbs.web.dto.SaveOrbitDto;
-import com.zeroxn.bbs.core.entity.UserAction;
+import com.zeroxn.bbs.base.entity.UserAction;
 
 /**
  * @Author: lisang

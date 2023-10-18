@@ -12,8 +12,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.zeroxn.bbs.core.common.JwtService;
-import com.zeroxn.bbs.core.validation.UserTokenValidator;
-import com.zeroxn.bbs.web.mapper.UserMapper;
 import com.zeroxn.bbs.web.service.UserService;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -23,7 +21,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -34,7 +31,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * @Author: lisang

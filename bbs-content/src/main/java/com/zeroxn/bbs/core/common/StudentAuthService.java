@@ -2,7 +2,7 @@ package com.zeroxn.bbs.core.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeroxn.bbs.core.cache.CacheService;
-import com.zeroxn.bbs.core.entity.Student;
+import com.zeroxn.bbs.base.entity.Student;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import okhttp3.*;
 import org.slf4j.Logger;

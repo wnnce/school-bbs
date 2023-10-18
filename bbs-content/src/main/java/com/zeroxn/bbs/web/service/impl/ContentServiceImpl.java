@@ -2,14 +2,15 @@ package com.zeroxn.bbs.web.service.impl;
 
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
-import com.mybatisflex.core.query.QueryColumn;
 import com.mybatisflex.core.query.QueryWrapper;
-import com.zeroxn.bbs.core.entity.ForumTopic;
-import com.zeroxn.bbs.core.entity.ProposeTopic;
+import com.zeroxn.bbs.base.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.ProposeTopic;
+import com.zeroxn.bbs.base.entity.UserExtras;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import com.zeroxn.bbs.web.dto.PageQueryDto;
 import com.zeroxn.bbs.web.dto.QueryPostDto;
 import com.zeroxn.bbs.web.dto.UserTopicDto;
+import com.zeroxn.bbs.web.dto.UserTopicQueryDto;
 import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
 import com.zeroxn.bbs.web.mapper.ProposeTopicMapper;
 import com.zeroxn.bbs.web.mapper.UserExtrasMapper;
@@ -21,17 +22,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.mybatisflex.core.query.QueryMethods.*;
 import static com.zeroxn.bbs.core.entity.table.CommentTableDef.COMMENT;
 import static com.zeroxn.bbs.core.entity.table.ForumTopicTableDef.FORUM_TOPIC;
 import static com.zeroxn.bbs.core.entity.table.ProposeTopicTableDef.PROPOSE_TOPIC;
+import static com.zeroxn.bbs.core.entity.table.UserExtrasTableDef.USER_EXTRAS;
 
 /**
  * @Author: lisang
@@ -58,7 +58,7 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public void saveTopic(ForumTopic topic) {
-        ExceptionUtils.isConditionThrowRequest(!checkTopicPublish(topic.getUserId(), false), "话题发布过于频繁");
+        ExceptionUtils.isConditionThrowRequest(checkTopicPublishTime(topic.getUserId(), false), "话题发布过于频繁");
         topic.setType(1);
         topicMapper.insertSelective(topic);
         logger.info("话题保存成功，TopicId:{}", topic.getId());
@@ -70,7 +70,7 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public void savePost(ForumTopic post) {
-        ExceptionUtils.isConditionThrowRequest(!checkTopicPublish(post.getUserId(), true), "帖子发布过于频繁");
+        ExceptionUtils.isConditionThrowRequest(checkTopicPublishTime(post.getUserId(), true), "帖子发布过于频繁");
         post.setType(0);
         topicMapper.insertSelective(post);
         logger.info("帖子保存成功，TopicId：{}", post.getId());
@@ -176,7 +176,33 @@ public class ContentServiceImpl implements ContentService {
         asyncTask.updateTopicStarCount(topicId, 1, false);
     }
 
-    private boolean checkTopicPublish(Long userId, boolean isPost) {
+    @Override
+    public Page<UserTopicDto> pageUserPublishTopic(UserTopicQueryDto userTopicDto, Long userId) {
+        QueryWrapper queryWrapper = this.initUserTopicQueryWrapper()
+                .where(FORUM_TOPIC.USER_ID.eq(userId))
+                .and(userTopicDto.getType() != null ? FORUM_TOPIC.TYPE.eq(userTopicDto.getType()) : noCondition())
+                .orderBy(FORUM_TOPIC.CREATE_TIME.desc())
+                .groupBy(FORUM_TOPIC.ID);
+        return topicMapper.paginateAs(userTopicDto.getPage(), userTopicDto.getSize(), queryWrapper, UserTopicDto.class);
+    }
+
+    @Override
+    public Page<UserTopicDto> pageUserStarTopic(UserTopicQueryDto userTopicDto, Long userId) {
+        UserExtras userExtras = QueryChain.of(UserExtras.class)
+                .where(USER_EXTRAS.USER_ID.eq(userId))
+                .one();
+        Integer[] topicStars = userExtras.getTopicStars();
+        if (topicStars == null || topicStars.length == 0) {
+            return null;
+        }
+        QueryWrapper queryWrapper = this.initUserTopicQueryWrapper()
+                .where(FORUM_TOPIC.ID.in(Arrays.stream(topicStars).toArray()))
+                .and(userTopicDto.getType() != null ? FORUM_TOPIC.TYPE.eq(userTopicDto.getType()) : noCondition())
+                .groupBy(FORUM_TOPIC.ID);
+        return topicMapper.paginateAs(userTopicDto.getPage(), userTopicDto.getSize(), queryWrapper, UserTopicDto.class);
+    }
+
+    private boolean checkTopicPublishTime(Long userId, boolean isPost) {
         List<Object> createTimeList = QueryChain.of(ForumTopic.class)
                 .select(FORUM_TOPIC.CREATE_TIME)
                 .where(FORUM_TOPIC.USER_ID.eq(userId))
@@ -185,12 +211,12 @@ public class ContentServiceImpl implements ContentService {
                 .limit(2)
                 .listAs(Object.class);
         if (createTimeList == null || createTimeList.size() < 2) {
-            return true;
+            return false;
         }
         Timestamp lastCreateTime = (Timestamp) createTimeList.get(1);
         long lastMilli = lastCreateTime.getTime();
         long currentMillis = System.currentTimeMillis();
-        return currentMillis - lastMilli > Duration.ofHours(PUBLISH_TOPIC_LIMIT_DATE_HOUR).toMillis();
+        return currentMillis - lastMilli <= Duration.ofHours(PUBLISH_TOPIC_LIMIT_DATE_HOUR).toMillis();
     }
 
     private QueryWrapper initUserTopicQueryWrapper() {

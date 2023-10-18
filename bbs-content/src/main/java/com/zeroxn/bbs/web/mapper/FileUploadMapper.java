@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.FileUpload;
+import com.zeroxn.bbs.base.entity.FileUpload;
 
 /**
  * 文件上传表 映射层。

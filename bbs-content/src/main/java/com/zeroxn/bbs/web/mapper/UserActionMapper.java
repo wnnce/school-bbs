@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.UserAction;
+import com.zeroxn.bbs.base.entity.UserAction;
 
 /**
  * 用户行为表 映射层。

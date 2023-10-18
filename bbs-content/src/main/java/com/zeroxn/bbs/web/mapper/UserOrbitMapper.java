@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.UserOrbit;
+import com.zeroxn.bbs.base.entity.UserOrbit;
 
 /**
  * 用户轨迹表 映射层。

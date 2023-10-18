@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.entity;
+package com.zeroxn.bbs.base.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 import org.apache.ibatis.type.JdbcType;
 
 /**
- * 用户画像表 实体类。
+ * 用户额外信息表 实体类。
  *
  * @author lisang
  * @since 2023-10-12
@@ -27,17 +27,17 @@ import org.apache.ibatis.type.JdbcType;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(value = "bbs_user_profile")
-public class UserProfile implements Serializable {
+@Table(value = "bbs_user_extras")
+public class UserExtras implements Serializable {
 
     /**
-     * ID 主键 自增
+     * ID主键 自增
      */
     @Id(keyType = KeyType.Auto)
     private Integer id;
 
     /**
-     * 用户ID 唯一
+     * 用户ID
      */
     private Long userId;
 
@@ -48,9 +48,9 @@ public class UserProfile implements Serializable {
     private LocalDateTime updateTime;
 
     /**
-     * 用户标签列表
+     * 用户收藏的帖子/话题列表
      */
     @Column(jdbcType = JdbcType.ARRAY, typeHandler = ArrayTypeHandler.class)
-    private String[] userLabels;
+    private Integer[] topicStars;
 
 }

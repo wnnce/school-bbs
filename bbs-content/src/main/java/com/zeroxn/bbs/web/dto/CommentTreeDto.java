@@ -2,7 +2,7 @@ package com.zeroxn.bbs.web.dto;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.core.paginate.Page;
-import com.zeroxn.bbs.core.entity.Comment;
+import com.zeroxn.bbs.base.entity.Comment;
 import lombok.*;
 
 /**

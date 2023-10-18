@@ -1,6 +1,6 @@
 package com.zeroxn.bbs.web.dto;
 
-import com.zeroxn.bbs.core.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.ForumTopic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserTopicDto extends ForumTopic {
+
     private Boolean isStar;
 
     private Integer commentCount;

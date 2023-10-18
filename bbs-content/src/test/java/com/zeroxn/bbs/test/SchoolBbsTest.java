@@ -7,7 +7,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.zeroxn.bbs.core.cache.MemoryCacheService;
 import com.zeroxn.bbs.core.common.StudentAuthService;
-import com.zeroxn.bbs.core.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.web.dto.CommentTreeDto;
 import com.zeroxn.bbs.web.dto.PageQueryDto;
 import com.zeroxn.bbs.web.mapper.CommentMapper;

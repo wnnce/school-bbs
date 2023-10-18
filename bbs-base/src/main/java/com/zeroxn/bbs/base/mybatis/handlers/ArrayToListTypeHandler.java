@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.mybatis.handlers;
+package com.zeroxn.bbs.base.mybatis.handlers;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;

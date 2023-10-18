@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import com.zeroxn.bbs.core.entity.Student;
+import com.zeroxn.bbs.base.entity.Student;
 
 /**
  * 校园论坛学生认证信息表 映射层。
