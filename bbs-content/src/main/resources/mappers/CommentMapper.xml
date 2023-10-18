@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroxn.bbs.web.mapper.CommentMapper">
+    <update id="deleteChildrenComment">
+        with recursive tree as (select id, content, rid
+                                from bbs_comment
+                                where rid = ${rid}
+                                union all
+                                select c1.id, c1.content, c1.rid
+                                from bbs_comment as c1
+                                         join tree on c1.rid = tree.id)
+        update bbs_comment
+        set status = 1
+        from tree
+        where bbs_comment.id = tree.id and status = 0;
+    </update>
+</mapper>

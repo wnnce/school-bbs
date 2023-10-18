@@ -14,7 +14,7 @@
 
     <select id="queryTopic" resultMap="userTopicMap">
         select *
-        from (select <include refid="all_column" /> from bbs_forum_topic where id = ${topicId}) as t1,
+        from (select <include refid="all_column" /> from bbs_forum_topic where id = ${topicId} and status = 0) as t1,
              (select topic_stars @> ARRAY [${topicId}] as is_star from bbs_user_extras where user_id = ${userId}) as u1,
              (select count(id) as comment_count from bbs_comment where topic_id = ${topicId}) as c1;
     </select>

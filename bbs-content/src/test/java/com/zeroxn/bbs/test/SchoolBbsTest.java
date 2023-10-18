@@ -1,5 +1,6 @@
 package com.zeroxn.bbs.test;
 
+import com.mybatisflex.core.paginate.Page;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -7,7 +8,11 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.zeroxn.bbs.core.cache.MemoryCacheService;
 import com.zeroxn.bbs.core.common.StudentAuthService;
 import com.zeroxn.bbs.core.entity.ForumTopic;
+import com.zeroxn.bbs.web.dto.CommentTreeDto;
+import com.zeroxn.bbs.web.dto.PageQueryDto;
+import com.zeroxn.bbs.web.mapper.CommentMapper;
 import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
+import com.zeroxn.bbs.web.service.CommentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +41,11 @@ import java.util.UUID;
 public class SchoolBbsTest {
     @Autowired
     ForumTopicMapper topicMapper;
+    @Autowired
+    CommentMapper commentMapper;
+
+    @Autowired
+    CommentService commentService;
 
     private StudentAuthService authService;
     @Test
@@ -105,5 +115,11 @@ public class SchoolBbsTest {
     public void testTypeHandler() {
         ForumTopic topic = topicMapper.selectOneById(10);
         System.out.println(topic.getImageUrls());
+    }
+
+    @Test
+    public void testQueryCommentTree() {
+        Page<CommentTreeDto> commentTreeDtoPage = commentService.pageTopicCommentList(13, new PageQueryDto(1, 5));
+        System.out.println(commentTreeDtoPage);
     }
 }
