@@ -72,4 +72,11 @@ public class UserMessage implements Serializable {
     @Column(isLogicDelete = true)
     private Integer status;
 
+    public UserMessage(Long userId, String content, Integer type, Integer topicId, Long commentId) {
+        this.userId = userId;
+        this.content = content;
+        this.type = type;
+        this.topicId = topicId;
+        this.commentId = commentId;
+    }
 }

@@ -31,6 +31,10 @@ public class MessageServiceImpl implements MessageService {
         this.publicMessageMapper = publicMessageMapper;
         this.userMessageMapper = userMessageMapper;
     }
+
+    public int sendUserMessage(UserMessage userMessage) {
+        return userMessageMapper.insertSelective(userMessage);
+    }
     @Override
     public Page<UserPublicMessageDto> pagePublicMessage(PageQueryDto pageDto, Long userId) {
         QueryWrapper queryWrapper = QueryWrapper.create()

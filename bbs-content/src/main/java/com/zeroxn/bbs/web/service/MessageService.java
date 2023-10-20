@@ -12,6 +12,7 @@ import com.zeroxn.bbs.web.dto.UserPublicMessageDto;
  * @Description: 公共消息和用户消息 服务层
  */
 public interface MessageService {
+    int sendUserMessage(UserMessage userMessage);
     Page<UserPublicMessageDto> pagePublicMessage(PageQueryDto pageDto, Long userId);
     Page<UserMessage> pageUserMessage(PageQueryDto pageDto, Long userId);
     void readPublicMessage(Integer messageId, Long userId);

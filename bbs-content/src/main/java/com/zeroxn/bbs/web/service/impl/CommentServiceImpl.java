@@ -9,6 +9,7 @@ import com.zeroxn.bbs.web.dto.CommentTreeDto;
 import com.zeroxn.bbs.web.dto.PageQueryDto;
 import com.zeroxn.bbs.web.mapper.CommentMapper;
 import com.zeroxn.bbs.web.service.CommentService;
+import com.zeroxn.bbs.web.service.async.GlobalAsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -31,13 +32,20 @@ import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
 public class CommentServiceImpl implements CommentService {
     private static final Logger logger = LoggerFactory.getLogger(ContentServiceImpl.class);
     private final CommentMapper commentMapper;
-    public CommentServiceImpl(CommentMapper commentMapper) {
+    private final GlobalAsyncTask asyncTask;
+    public CommentServiceImpl(CommentMapper commentMapper, GlobalAsyncTask asyncTask) {
         this.commentMapper = commentMapper;
+        this.asyncTask = asyncTask;
     }
     @Override
     public void saveComment(Comment comment) {
         int result = commentMapper.insertSelective(comment);
         logger.info("插入评论成功，影响行数：{}", result);
+        if (comment.getRid() == 0) {
+            asyncTask.sendTopicUserMessage(comment);
+        }else {
+            asyncTask.sendCommentUserMessage(comment);
+        }
     }
 
     @Override

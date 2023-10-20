@@ -1,14 +1,10 @@
 package com.zeroxn.bbs.web.service.async;
 
+import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.update.UpdateChain;
-import com.zeroxn.bbs.base.entity.FileUpload;
-import com.zeroxn.bbs.base.entity.ForumTopic;
-import com.zeroxn.bbs.base.entity.UserExtras;
-import com.zeroxn.bbs.base.entity.UserProfile;
-import com.zeroxn.bbs.web.mapper.FileUploadMapper;
-import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
-import com.zeroxn.bbs.web.mapper.UserExtrasMapper;
-import com.zeroxn.bbs.web.mapper.UserProfileMapper;
+import com.zeroxn.bbs.base.entity.*;
+import com.zeroxn.bbs.web.mapper.*;
+import com.zeroxn.bbs.web.service.MessageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.zeroxn.bbs.base.entity.table.CommentTableDef.COMMENT;
+import static com.zeroxn.bbs.base.entity.table.ForumTopicTableDef.FORUM_TOPIC;
+import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
 
 /**
  * @Author: lisang
@@ -29,17 +29,24 @@ public class GlobalAsyncTask {
      * 异步任务线程池，线程数量为当前CPU的内核数量
      */
     private static final ExecutorService executors = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private final MessageService messageService;
     private final FileUploadMapper uploadMapper;
     private final UserExtrasMapper extrasMapper;
     private final UserProfileMapper profileMapper;
+    private final UserMapper userMapper;
     private final ForumTopicMapper topicMapper;
+    private final CommentMapper commentMapper;
 
     public GlobalAsyncTask(FileUploadMapper uploadMapper, UserExtrasMapper extrasMapper, UserProfileMapper profileMapper,
-                           ForumTopicMapper topicMapper) {
+                           ForumTopicMapper topicMapper, UserMapper userMapper, MessageService messageService,
+                           CommentMapper commentMapper) {
+        this.messageService = messageService;
         this.uploadMapper = uploadMapper;
         this.extrasMapper = extrasMapper;
         this.profileMapper = profileMapper;
         this.topicMapper = topicMapper;
+        this.userMapper = userMapper;
+        this.commentMapper = commentMapper;
     }
 
     /**
@@ -78,15 +85,55 @@ public class GlobalAsyncTask {
         });
     }
 
-    public void handlerTopicContentKey(ForumTopic topic) {
+    public void sendTopicUserMessage(Comment comment) {
         this.executeVoidAsyncFunction(() -> {
-            logger.info("生成帖子关键字");
+            CompletableFuture<String> nickNaeFuture = this.getUserNickName(comment.getUserId());
+            CompletableFuture<ForumTopic> topicFuture = CompletableFuture.supplyAsync(() -> topicMapper.selectOneByQuery(new QueryWrapper()
+                    .select(FORUM_TOPIC.ID, FORUM_TOPIC.TYPE, FORUM_TOPIC.USER_ID)
+                    .where(FORUM_TOPIC.ID.eq(comment.getTopicId()))), executors);
+            try {
+                CompletableFuture.allOf(nickNaeFuture, topicFuture).get();
+                ForumTopic findTopic = topicFuture.get();
+                if (findTopic == null) {
+                    logger.info("评论对应的帖子/话题不存在，跳过写入消息，topicId：{}", comment.getTopicId());
+                    return;
+                }
+                if (findTopic.getUserId().equals(comment.getUserId())) {
+                    logger.info("用户自身评论，跳过写入消息");
+                    return;
+                }
+                String messageContent = nickNaeFuture.get() + "评论了你的" + (findTopic.getType() == 0 ? "帖子" : "话题");
+                int result = messageService.sendUserMessage(new UserMessage(findTopic.getUserId(), messageContent, 0, findTopic.getId(), null));
+                logger.info("用户帖子/话题消息发送完成，影响行数：{}", result);
+            } catch (Exception ex) {
+                logger.error("发送用户帖子/话题消息失败，错误信息：{}", ex.getMessage());
+            }
         });
     }
 
-    public void handlerTopicPropose(ForumTopic topic) {
+    public void sendCommentUserMessage(Comment comment) {
         this.executeVoidAsyncFunction(() -> {
-            logger.info("处理话题推送");
+            CompletableFuture<String> nickNameFuture = this.getUserNickName(comment.getUserId());
+            CompletableFuture<Long> userIdFuture = CompletableFuture.supplyAsync(() -> commentMapper.selectOneByQueryAs(new QueryWrapper()
+                    .select(COMMENT.USER_ID)
+                    .where(COMMENT.ID.eq(COMMENT.ID.eq(comment.getRid()))), Long.class));
+            try {
+                CompletableFuture.allOf(nickNameFuture, userIdFuture).get();
+                Long userId = userIdFuture.get();
+                if (userId == null) {
+                    logger.info("回复的评论不存在，跳过写入消息，commentId：{}", comment.getRid());
+                    return;
+                }
+                if (userId.equals(comment.getUserId())) {
+                    logger.info("用户自身回复，跳过写入消息");
+                    return;
+                }
+                String nickName = nickNameFuture.get();
+                String messageContent = nickName + "回复了你的评论";
+                messageService.sendUserMessage(new UserMessage(userId, messageContent, 1, comment.getTopicId(), comment.getId()));
+            } catch (Exception ex) {
+                logger.error("发送用户评论回复消息失败，错误信息：{}", ex.getMessage());
+            }
         });
     }
 
@@ -113,5 +160,11 @@ public class GlobalAsyncTask {
                     .where(ForumTopic::getId).eq(topicId)
                     .update();
         });
+    }
+
+    private CompletableFuture<String> getUserNickName(Long userId) {
+        return CompletableFuture.supplyAsync(() -> userMapper.selectOneByQueryAs(new QueryWrapper()
+                .select(USER.NICK_NAME)
+                .where(USER.ID.eq(userId)), String.class), executors);
     }
 }

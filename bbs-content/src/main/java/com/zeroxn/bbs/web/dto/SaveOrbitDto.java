@@ -21,7 +21,6 @@ public class SaveOrbitDto {
      * 用户Id
      */
     @Schema(description = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "用户ID不能为空")
     private Long userId;
 
     /**

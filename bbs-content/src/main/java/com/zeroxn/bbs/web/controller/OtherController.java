@@ -7,6 +7,8 @@ import com.zeroxn.bbs.web.service.OtherService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +34,9 @@ public class OtherController {
      */
     @PostMapping("/action")
     @Operation(description = "保存用户行为接口")
-    public void saveUserAction(@RequestBody @Validated UserAction userAction) {
+    public void saveUserAction(@RequestBody @Validated UserAction userAction, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        userAction.setUserId(userId);
         otherService.saveUserAction(userAction);
     }
 
@@ -43,7 +47,10 @@ public class OtherController {
      */
     @PostMapping("/orbit")
     @Operation(description = "保存用户位置信息接口")
-    public void saveUserOrbit(HttpServletRequest request, @RequestBody @Validated SaveOrbitDto saveOrbit){
+    public void saveUserOrbit(HttpServletRequest request, @RequestBody @Validated SaveOrbitDto saveOrbit,
+                              @AuthenticationPrincipal Jwt jwt){
+        Long userId = BbsUtils.formJwtGetUserId(jwt);
+        saveOrbit.setUserId(userId);
         String ipAddress = BbsUtils.getRequestIpAddress(request);
         otherService.saveUserOrbit(saveOrbit, ipAddress);
     }
