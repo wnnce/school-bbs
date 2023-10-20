@@ -1,9 +1,12 @@
 package com.zeroxn.bbs.base.entity;
 
+import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,14 +42,24 @@ public class UserMessage implements Serializable {
     private String content;
 
     /**
+     * 消息的发送时间
+     */
+    @Column(onInsertValue = "current_timestamp")
+    private LocalDateTime sendTime;
+    /**
      * 消息类型 0：话题/帖子回复消息 1：评论回复消息
      */
     private Integer type;
 
     /**
-     * 点击消息需要跳转的内容ID
+     * 消息对应的话题/帖子ID
      */
-    private Long sourceId;
+    private Integer topicId;
+
+    /**
+     * 消息对应的评论ID,如果是话题/帖子消息则为空
+     */
+    private Long commentId;
 
     /**
      * 消息用户是否已读
@@ -56,6 +69,7 @@ public class UserMessage implements Serializable {
     /**
      * 状态 0：正常 1：删除
      */
+    @Column(isLogicDelete = true)
     private Integer status;
 
 }

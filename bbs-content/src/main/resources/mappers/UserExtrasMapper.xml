@@ -10,7 +10,7 @@
     </select>
 
     <update id="saveTopicStar">
-        update bbs_user_extras set topic_stars = topic_stars || ${topicId} where user_id = ${userId};
+        update bbs_user_extras set topic_stars = array_append(topic_stars, ${topicId}) where user_id = ${userId};
     </update>
 
     <update id="deleteTopicStar">
