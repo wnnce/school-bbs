@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.zeroxn.bbs.core.entity.table.TopicLabelTableDef.TOPIC_LABEL;
+import static com.zeroxn.bbs.base.entity.table.TopicLabelTableDef.TOPIC_LABEL;
 
 /**
  * @Author: lisang

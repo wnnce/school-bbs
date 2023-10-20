@@ -19,8 +19,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.zeroxn.bbs.core.entity.table.CommentTableDef.COMMENT;
-import static com.zeroxn.bbs.core.entity.table.UserTableDef.USER;
+import static com.zeroxn.bbs.base.entity.table.CommentTableDef.COMMENT;
+import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
 
 /**
  * @Author: lisang

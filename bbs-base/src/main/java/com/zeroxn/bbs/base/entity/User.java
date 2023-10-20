@@ -5,17 +5,13 @@ import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import com.mybatisflex.core.keygen.KeyGenerators;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.crypto.KeyGenerator;
 
 /**
  * 校园论坛用户表 实体类。

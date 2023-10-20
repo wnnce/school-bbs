@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: 'jdbc:postgresql://10.10.10.10:5432/school_bbs'
+    username: postgres
+    password: admin
+  rabbitmq:
+    host: 10.10.10.10
+    port: 5672
+    virtual-host: /
+    username: root
+    password: admin
+
+xunfei:
+  analytics:
+    request-url: 'https://ltpapi.xfyun.cn/v1/ke'
+    appid: '49681549'
+    api-key: '919495c6d603fd43d9724e94d6056a4c'
+    type: 'dependent'
+analysis:
+  size: 6
+
+powerjob:
+  worker:
+    app-name: bbs-task
+    server-address: 10.10.10.10:7700
+    store-strategy: memory
+    protocol: http

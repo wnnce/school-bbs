@@ -12,11 +12,12 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.zeroxn.bbs.core.cache.CacheService;
 import com.zeroxn.bbs.core.cache.MemoryCacheService;
-import okhttp3.OkHttpClient;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -51,5 +52,14 @@ public class GlobalBeanConfig {
     @Bean
     public CacheService cacheService() {
         return new MemoryCacheService();
+    }
+
+    @Bean
+    public Queue bbsTopicQueue() {
+        return new Queue("bbs.topic");
+    }
+    @Bean
+    public MessageConverter jacksonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }

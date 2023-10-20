@@ -7,9 +7,9 @@ import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import com.zeroxn.bbs.core.mybatis.handlers.ArrayTypeHandler;
-import com.zeroxn.bbs.core.validation.ValidationGroups.SavePostValidation;
-import com.zeroxn.bbs.core.validation.ValidationGroups.SaveTopicValidation;
+import com.zeroxn.bbs.base.mybatis.handlers.ArrayTypeHandler;
+import com.zeroxn.bbs.base.validation.ValidationGroups.SavePostValidation;
+import com.zeroxn.bbs.base.validation.ValidationGroups.SaveTopicValidation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;

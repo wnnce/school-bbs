@@ -18,6 +18,7 @@ import com.zeroxn.bbs.web.service.ContentService;
 import com.zeroxn.bbs.web.service.async.GlobalAsyncTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +29,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.mybatisflex.core.query.QueryMethods.*;
-import static com.zeroxn.bbs.core.entity.table.CommentTableDef.COMMENT;
-import static com.zeroxn.bbs.core.entity.table.ForumTopicTableDef.FORUM_TOPIC;
-import static com.zeroxn.bbs.core.entity.table.ProposeTopicTableDef.PROPOSE_TOPIC;
-import static com.zeroxn.bbs.core.entity.table.UserExtrasTableDef.USER_EXTRAS;
+import static com.zeroxn.bbs.base.entity.table.CommentTableDef.COMMENT;
+import static com.zeroxn.bbs.base.entity.table.ForumTopicTableDef.FORUM_TOPIC;
+import static com.zeroxn.bbs.base.entity.table.ProposeTopicTableDef.PROPOSE_TOPIC;
+import static com.zeroxn.bbs.base.entity.table.UserExtrasTableDef.USER_EXTRAS;
 
 /**
  * @Author: lisang
@@ -47,13 +48,15 @@ public class ContentServiceImpl implements ContentService {
     private final UserExtrasMapper extrasMapper;
     private final ProposeTopicMapper proposeMapper;
     private final GlobalAsyncTask asyncTask;
+    private final RabbitTemplate rabbitTemplate;
 
     public ContentServiceImpl(ForumTopicMapper topicMapper, GlobalAsyncTask asyncTask, UserExtrasMapper extrasMapper,
-                              ProposeTopicMapper proposeMapper) {
+                              ProposeTopicMapper proposeMapper, RabbitTemplate rabbitTemplate) {
         this.topicMapper = topicMapper;
         this.asyncTask = asyncTask;
         this.extrasMapper = extrasMapper;
         this.proposeMapper = proposeMapper;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @Override
@@ -62,10 +65,12 @@ public class ContentServiceImpl implements ContentService {
         topic.setType(1);
         topicMapper.insertSelective(topic);
         logger.info("话题保存成功，TopicId:{}", topic.getId());
-        // 调用异步方法生成话题关键字
+        /*// 调用异步方法生成话题关键字
         asyncTask.handlerTopicContentKey(topic);
         // 调用异步方法处理话题推送
-        asyncTask.handlerTopicPropose(topic);
+        asyncTask.handlerTopicPropose(topic);*/
+        rabbitTemplate.convertAndSend("bbs.topic", topic);
+        logger.info("RabbitMQ发送消息成功，TopicId:{}", topic.getId());
     }
 
     @Override
@@ -74,9 +79,11 @@ public class ContentServiceImpl implements ContentService {
         post.setType(0);
         topicMapper.insertSelective(post);
         logger.info("帖子保存成功，TopicId：{}", post.getId());
-        // 调用异步方法生成帖子关键字
+        /*// 调用异步方法生成帖子关键字
         asyncTask.handlerTopicContentKey(post);
-        logger.info("return");
+        logger.info("return");*/
+        rabbitTemplate.convertAndSend("bbs.topic", post);
+        logger.info("RabbitMQ发送消息成功，TopicId:{}", post.getId());
     }
 
     @Override

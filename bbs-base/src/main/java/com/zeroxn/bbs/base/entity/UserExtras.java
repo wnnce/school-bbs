@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.zeroxn.bbs.core.mybatis.handlers.ArrayTypeHandler;
+import com.zeroxn.bbs.base.mybatis.handlers.ArrayTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

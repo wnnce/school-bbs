@@ -12,6 +12,7 @@
         <module>bbs-generate</module>
         <module>bbs-content</module>
         <module>bbs-base</module>
+        <module>bbs-task</module>
     </modules>
 
     <properties>
@@ -20,10 +21,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring-boot.version>3.1.0</spring-boot.version>
+        <azure-sdk.version>1.2.16</azure-sdk.version>
         <springdoc.version>2.1.0</springdoc.version>
         <qiniu-java.version>7.13.1</qiniu-java.version>
         <java-jwt.version>3.4.0</java-jwt.version>
         <mybatis-flex.version>1.7.0</mybatis-flex.version>
+        <swagger-annotations.version>2.2.9</swagger-annotations.version>
+        <hanlp.version>portable-1.8.4</hanlp.version>
+        <powerjob.version>4.3.6</powerjob.version>
     </properties>
 
     <dependencyManagement>
@@ -43,22 +48,46 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
+                <groupId>tech.powerjob</groupId>
+                <artifactId>powerjob-worker-spring-boot-starter</artifactId>
+                <version>${powerjob.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-common</artifactId>
-                <version>${springdoc.version}</version>
-                <scope>provided</scope>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>${swagger-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.qiniu</groupId>
                 <artifactId>qiniu-java-sdk</artifactId>
                 <version>${qiniu-java.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.hankcs</groupId>
+                <artifactId>hanlp</artifactId>
+                <version>${hanlp.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -4,6 +4,12 @@ spring:
     url: 'jdbc:postgresql://10.10.10.10:5432/school_bbs'
     username: postgres
     password: admin
+  rabbitmq:
+    host: 10.10.10.10
+    port: 5672
+    virtual-host: /
+    username: root
+    password: admin
 
 wechat:
   appid: asdasdasd

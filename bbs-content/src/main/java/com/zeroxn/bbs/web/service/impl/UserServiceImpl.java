@@ -22,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Set;
 
-import static com.zeroxn.bbs.core.entity.table.UserTableDef.USER;
-import static com.zeroxn.bbs.core.entity.table.StudentTableDef.STUDENT;
+import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
+import static com.zeroxn.bbs.base.entity.table.StudentTableDef.STUDENT;
 
 /**
  * @Author: lisang
