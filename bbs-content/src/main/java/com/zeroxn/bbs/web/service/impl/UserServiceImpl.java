@@ -55,14 +55,13 @@ public class UserServiceImpl implements UserService {
     /**
      * 先通过code获取微信的OpenId,再判断数据库中openid是否存在，如果存在直接判断用户角色，生成对应的Token
      * 如果不存在，那么将获取到的openid保存到数据库，然后颁发user权限的Token
-     * @param openId 微信登录颁发的code
+     * @param code 微信登录颁发的code
      * @return 返回生成的Token
      */
     @Override
-    public String login(String openId) {
-        // TODO 临时禁用OpenId获取 用于测试
-//        String openId = wechatService.getOpenId(code);
-//        ExceptionUtils.isConditionThrowServer(openId == null, "登录失败，获取OpenId失败");
+    public String login(String code) {
+        String openId = wechatService.getOpenId(code);
+        ExceptionUtils.isConditionThrowServer(openId == null, "登录失败，获取OpenId失败");
         User findUser = userMapper.selectOneByQuery(new QueryWrapper().where(USER.OPENID.eq(openId)));
         if (findUser != null) {
             if (findUser.getUserAuth() == 1) {

@@ -15,6 +15,6 @@ spring:
 powerjob:
   worker:
     app-name: bbs-task
-    server-address: powerjob-server:7700
+    server-address: 10.10.10.12:7700
     store-strategy: memory
     protocol: http
