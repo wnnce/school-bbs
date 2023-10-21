@@ -10,5 +10,9 @@ import java.util.List;
  * @Description: 话题标签接口 服务层
  */
 public interface LabelService {
+    /**
+     * 获取所有标签列表
+     * @return 返回空或者标签列表信息
+     */
     List<TopicLabel> listTopicLabel();
 }

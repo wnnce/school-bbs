@@ -41,14 +41,25 @@ import java.util.Set;
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfigurations {
 
+    /**
+     * Security拦截路径配置
+     * @param http 从IOC容器中拿到配置对象
+     * @return 返回配置
+     * @throws Exception 异常
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // 所有路径都需要认证 使用默认的Jwt配置
         return http
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
 
+    /**
+     * 配置需要放行的路径
+     * @return
+     */
     @Bean
     public WebSecurityCustomizer ignoringCustomizer() {
         return web -> web.ignoring().requestMatchers("/user/login", "/swagger-ui/**");
@@ -72,6 +83,10 @@ public class SecurityConfigurations {
         return new ImmutableJWKSet<>(jwkSet);
     }
 
+    /**
+     * 每次项目启动都生成随机的公私钥
+     * @return 返回生成的公私钥
+     */
     private static KeyPair generateRsaKey() {
         KeyPair keyPair;
         try {
@@ -85,6 +100,9 @@ public class SecurityConfigurations {
         return keyPair;
     }
 
+    /**
+     * 读取本地的共私钥来保证每次项目启动Jwt的加密方式始终一致，以便项目重新启动后也可以解析以前颁发的Token
+     */
     static class RsaKeyReader {
         static KeyPair keyPair(ResourceLoader resourceLoader, String publicPath, String privatePath) {
             try {

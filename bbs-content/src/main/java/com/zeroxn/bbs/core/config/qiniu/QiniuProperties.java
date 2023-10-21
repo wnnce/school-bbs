@@ -13,14 +13,29 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @Getter
 @ConfigurationProperties(prefix = "qiniu")
 public class QiniuProperties {
-
+    /**
+     * 七牛云的accessToken
+     */
     private final String accessKey;
+    /**
+     * 七牛云的secretToken
+     */
     private final String secretKey;
-
+    /**
+     * 七牛云中的存储桶名称
+     */
     private final String bucket;
+    /**
+     * 存储桶的域名
+     */
     private final String bucketDomain;
-
+    /**
+     * 保存图片的自定义文件夹
+     */
     private final String imageFolder;
+    /**
+     * 保存视频的自定义文件夹
+     */
     private final String videoFolder;
 
     @ConstructorBinding

@@ -40,6 +40,10 @@ public class WechatService {
         this.cacheService = cacheService;
     }
 
+    /**
+     * 获取微信的AccessToken 获取成功后放到缓存里面。AccessToken2个小时内有效，缓存设置为110分钟过期
+     * @return 返回获取的AccessToken
+     */
     private String getAccessToken() {
         String accessToken = cacheService.getCache("wechatAccessToken", String.class);
         if (accessToken != null && !accessToken.isEmpty()) {
@@ -64,6 +68,11 @@ public class WechatService {
         return null;
     }
 
+    /**
+     * 获取用户的openId
+     * @param code 前端拿到的微信登录Code
+     * @return 返回用户的openId
+     */
     public String getOpenId(String code) {
         HttpUrl loginUrl = HttpUrl.get(properties.getLoginUrl()).newBuilder()
                 .addQueryParameter("appid", properties.getAppid())
@@ -81,6 +90,11 @@ public class WechatService {
         return null;
     }
 
+    /**
+     * 获取用户手机号
+     * @param code 前端调用微信手机号接口拿到的code
+     * @return 返回手机号
+     */
     public String getPhone(String code) {
         String accessToken = this.getAccessToken();
         ExceptionUtils.isConditionThrowServer(accessToken == null, "获取手机号失败");
@@ -101,6 +115,13 @@ public class WechatService {
         return null;
     }
 
+    /**
+     * 统一发送请求方法，负责请求发送和响应数据的反序列化
+     * @param request 需要发送的请求
+     * @param clazz 需要反序列化的类型
+     * @return 返回响应参数反序列后的对象
+     * @param <T> 泛型
+     */
     private <T> T sendRequest(Request request, Class<T> clazz) {
         try{
             Response response = client.newCall(request).execute();

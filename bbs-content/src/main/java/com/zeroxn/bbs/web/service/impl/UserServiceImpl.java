@@ -51,6 +51,13 @@ public class UserServiceImpl implements UserService {
         this.authService = authService;
         this.asyncTask = asyncTask;
     }
+
+    /**
+     * 先通过code获取微信的OpenId,再判断数据库中openid是否存在，如果存在直接判断用户角色，生成对应的Token
+     * 如果不存在，那么将获取到的openid保存到数据库，然后颁发user权限的Token
+     * @param openId 微信登录颁发的code
+     * @return 返回生成的Token
+     */
     @Override
     public String login(String openId) {
         // TODO 临时禁用OpenId获取 用于测试
@@ -81,6 +88,11 @@ public class UserServiceImpl implements UserService {
         return jwtService.generateToken(user.getId().toString(), user.getOpenid(), Set.of("user"));
     }
 
+    /**
+     * 调用微信接口，通过code获取用户的手机号
+     * @param code 微信获取用户手机号方法拿到的临时code
+     * @return 返回用户的手机号
+     */
     @Override
     public String getUserPhone(String code) {
         String phone = wechatService.getPhone(code);
@@ -88,11 +100,23 @@ public class UserServiceImpl implements UserService {
         return phone;
     }
 
+    /**
+     *
+     * @param userId 用户Id
+     * @return 返回空或者用户详细信息
+     */
     @Override
     public User queryUserInfo(Long userId) {
-        return userMapper.selectOneByQuery(new QueryWrapper().where(USER.ID.eq(userId)).where(USER.STATUS.ne(2)));
+        return userMapper.selectOneByQuery(new QueryWrapper()
+                .where(USER.ID.eq(userId))
+                .and(USER.USER_AUTH.eq(0)));
     }
 
+    /**
+     * 更新用户信息
+     * @param userId 用户Id
+     * @param userDto 新的用户信息
+     */
     @Override
     public void updateUserInfo(Long userId, UpdateUserDto userDto) {
         User user = new User();
@@ -106,6 +130,14 @@ public class UserServiceImpl implements UserService {
         return authService.sendStudentLoginCode(studentId);
     }
 
+    /**
+     * 获取学生信息后，先判断当前用户是否已经学生认证，再判断当前学号是否在数据库中存在
+     * 只有条件都符合，才将学生信息写入数据库
+     * @param studentId 学号
+     * @param code 学校发送的验证码
+     * @param userId 需要学生认证的用户Id
+     * @return 返回新的Token和学生信息
+     */
     @Override
     @Transactional
     public Map<String, Object> studentAuth(String studentId, String code, Long userId) {
@@ -122,6 +154,11 @@ public class UserServiceImpl implements UserService {
         return Map.of("info", student, "token", token);
     }
 
+    /**
+     * 私有方法 更新用户角色
+     * @param userId 用户id
+     * @param newRole 新的用户角色
+     */
     private void updateUserRole(Long userId, Integer newRole) {
         User user = UpdateEntity.of(User.class, userId);
         user.setRole(newRole);

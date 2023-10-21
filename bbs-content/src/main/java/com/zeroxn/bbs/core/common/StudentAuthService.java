@@ -52,6 +52,11 @@ public class StudentAuthService {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 请求学校官网接口获取手机验证码
+     * @param studentId 学生学号
+     * @return 返回是否获取成功
+     */
     public boolean sendStudentLoginCode(String studentId) {
         RequestBody requestBody = new FormBody.Builder()
                 .add("sfz", studentId)
@@ -82,6 +87,7 @@ public class StudentAuthService {
             Response codeResponse = client.newCall(codeRequest).execute();
             if (codeResponse.isSuccessful()) {
                 if (codeResponse.body().string().contains("true")) {
+                    // 获取成功将cookie添加到缓存中，缓存设置3分钟内有效
                     cacheService.setCache(CACHE_PREFIX + studentId, cookie, Duration.ofMinutes(3));
                     return true;
                 }
@@ -92,15 +98,23 @@ public class StudentAuthService {
         return false;
     }
 
+    /**
+     * 通过学号和验证码从学习官网拿到学生信息
+     * @param studentId 学生学号
+     * @param validationCode 学校发送的验证码
+     * @return 返回学生信息
+     */
     public Student getStudentInfo(String studentId, String validationCode) {
         String cacheKey = CACHE_PREFIX + studentId;
         String cookie = cacheService.getCache(cacheKey, String.class);
+        // 通过学号判断缓存的Cookie是否存在或者已经失效
         if (cookie == null || cookie.isEmpty()){
             ExceptionUtils.throwRequestException("验证码不存在或者已失效");
         }
         RequestBody loginBody = new FormBody.Builder()
                 .add("yzm", validationCode)
                 .build();
+        // 拿到PORTAL_TICKET
         Request loginRequest = new Request.Builder()
                 .url(LOGIN_URL)
                 .post(loginBody)
@@ -115,6 +129,7 @@ public class StudentAuthService {
                 .url(tokenUrl.url())
                 .header("Cookie", cookie)
                 .build();
+        // 拿到获取用户信息需要的Token
         TokenResult tokenResult = this.sendRequest(tokenRequest, TokenResult.class);
         this.validationTokenResult(tokenResult);
         String token = tokenResult.content().get("token");
@@ -129,6 +144,7 @@ public class StudentAuthService {
                 .build();
         TokenResult infoResult = this.sendRequest(infoRequest, TokenResult.class);
         this.validationTokenResult(infoResult);
+        // 拿到学生信息并返回Student对象
         Map<String, String> content = infoResult.content();
         return Student.builder()
                 .studentId(studentId)

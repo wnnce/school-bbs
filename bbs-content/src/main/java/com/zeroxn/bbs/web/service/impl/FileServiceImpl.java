@@ -49,6 +49,13 @@ public class FileServiceImpl extends QiniuBucketService implements FileService {
         return this.fileUpload(properties.getVideoFolder(), multipartFile, md5);
     }
 
+    /**
+     * 统一的文件上传方法
+     * @param prefixFolder 文件保存的顶层文件夹
+     * @param multipartFile 需要上传的文件信息
+     * @param md5 文件md5码
+     * @return 返回文件上传后的链接
+     */
     private String fileUpload(String prefixFolder, MultipartFile multipartFile, String md5) {
         String originName = multipartFile.getOriginalFilename();
         ExceptionUtils.isConditionThrowRequest(originName == null || originName.isEmpty(), "文件名称不能为空");
@@ -67,6 +74,10 @@ public class FileServiceImpl extends QiniuBucketService implements FileService {
         throw new CustomException(HttpStatus.BAD_REQUEST, "文件上传失败，请重试");
     }
 
+    /**
+     * 拿到当前的日期，文件保存的文件夹
+     * @return 格式化后的日期文件夹路径
+     */
     private String makeCurrentDayFolder() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
     }

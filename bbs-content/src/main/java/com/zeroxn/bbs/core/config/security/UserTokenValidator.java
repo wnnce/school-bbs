@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-13 18:52:30
- * @Description: Token有效性验证类
+ * @Description: 自定义Token有效性验证类
  */
 public class UserTokenValidator implements OAuth2TokenValidator<Jwt> {
     private final Logger logger = LoggerFactory.getLogger(UserTokenValidator.class);
@@ -23,6 +23,12 @@ public class UserTokenValidator implements OAuth2TokenValidator<Jwt> {
     public UserTokenValidator(UserService userService) {
         this.userService = userService;
     }
+
+    /**
+     * 自定义Token的查询逻辑，判断当前Token的是否有效，以及Token中的信息和数据库中是否一致
+     * @param jwt 请求传入的Token
+     * @return 返回验证成功或失败
+     */
     @Override
     public OAuth2TokenValidatorResult validate(Jwt jwt) {
         Long userId = null;

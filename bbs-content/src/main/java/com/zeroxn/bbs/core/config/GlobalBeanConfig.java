@@ -26,11 +26,15 @@ import java.time.format.DateTimeFormatter;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-10 21:28:09
- * @Description: 通过Bean控制类
+ * @Description: 全局Bean配置类，用于注入一些项目中通用的Bean
  */
 @Configuration
 public class GlobalBeanConfig {
 
+    /**
+     * 配置Jackson的序列化解析器，主要是对LocalDateTime的支持和不序列化null值
+     * @return 配置完成的ObjectMapper
+     */
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -49,15 +53,28 @@ public class GlobalBeanConfig {
         return objectMapper;
     }
 
+    /**
+     * 注入基于内存的缓存管理，如有需要可以实现接口添加基于redis的缓存管理
+     * @return 缓存管理器
+     */
     @Bean
     public CacheService cacheService() {
         return new MemoryCacheService();
     }
 
+    /**
+     * 生成帖子/话题关键字需要用到的RabbitMQ Queue
+     * @return 返回需要生成的Queue
+     */
     @Bean
     public Queue bbsTopicQueue() {
         return new Queue("bbs.topic");
     }
+
+    /**
+     * 自定义消息队列的消息解析器，注入jackson的消息解析器，消息序列化为Json数据，默认为base64
+     * @return 返回基于Jackson的消息解析器
+     */
     @Bean
     public MessageConverter jacksonMessageConverter() {
         return new Jackson2JsonMessageConverter();

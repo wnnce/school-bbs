@@ -37,6 +37,13 @@ public class CommentServiceImpl implements CommentService {
         this.commentMapper = commentMapper;
         this.asyncTask = asyncTask;
     }
+
+    /**
+     * 先往数据库添加评论信息，然后判断评论的上级评论Id是否为0，
+     * 如果为0，那么调用异步任务方法发送帖子/话题被评论的用户消息
+     * 如果为1,同样调用异步方法发送评论被回复的用户消息
+     * @param comment 封装评论数据
+     */
     @Override
     public void saveComment(Comment comment) {
         int result = commentMapper.insertSelective(comment);
@@ -48,6 +55,13 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    /**
+     * 先查询出该帖子所有的一级评论信息，再使用异步线程对一级评论信息进行遍历，获取其中可能存在的子评论信息和分页参数
+     * 一级评论的子评论默认获取第一页和五条，按照发布时间倒序排序
+     * @param topicId 帖子/话题Id
+     * @param pageDto 分页参数
+     * @return 返回封装后的评论树形信息
+     */
     @Override
     public Page<CommentTreeDto> pageTopicCommentList(Integer topicId, PageQueryDto pageDto) {
         QueryWrapper queryWrapper = QueryWrapper.create()
@@ -87,6 +101,14 @@ public class CommentServiceImpl implements CommentService {
         }
         return commentTreePage;
     }
+
+    /**
+     * 通过一级评论id获取一级评论的子评论列表
+     * @param commentId 一级评论Id
+     * @param page 页码
+     * @param size 每页记录数
+     * @return 返回空或者该评论的子评论列表
+     */
     public Page<CommentTreeDto> pageCommentChildrenNodes(Long commentId, int page, int size) {
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .select("c1.id", "c1.content", "c1.create_time", "c1.user_id", "c1.rid", "u1.nick_name",
@@ -101,6 +123,11 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.paginateAs(page, size, queryWrapper, CommentTreeDto.class);
     }
 
+    /**
+     * 通过评论Id获取评论的详细信息，先获取到评论信息判断是否为空以及是否存在上级评论，如果存在上级评论那么再获取上级评论的用户昵称
+     * @param commentId 评论Id
+     * @return 返回单条评论详细信息
+     */
     @Override
     public CommentTreeDto queryCommentInfo(Long commentId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
@@ -109,9 +136,12 @@ public class CommentServiceImpl implements CommentService {
                 .from(COMMENT)
                 .leftJoin(USER).on(USER.ID.eq(COMMENT.USER_ID))
                 .where(COMMENT.ID.eq(commentId));
+        // 先获取评论西信息
         CommentTreeDto commentDto = commentMapper.selectOneByQueryAs(queryWrapper, CommentTreeDto.class);
+        // 判断是否为空和是否存在上级评论
         ExceptionUtils.isConditionThrow(commentDto == null, HttpStatus.NOT_FOUND, "评论不存在");
         if (commentDto.getRid() != null && commentDto.getRid() != 0) {
+            // 存在上级评论则获取上级评论的用户昵称
             String recoverNickName = QueryChain.of(Comment.class)
                     .select(USER.NICK_NAME)
                     .from(COMMENT)
@@ -123,6 +153,12 @@ public class CommentServiceImpl implements CommentService {
         return commentDto;
     }
 
+    /**
+     * 删除评论，针对一级评论直接删除后在删除所有fid = commentId的评论信息
+     * 如果不是一级评论，则通过rid进行递归删除，删除其下所有的子评论信息
+     * @param commentId 评论id
+     * @param userId 当前操作的用户id
+     */
     @Override
     @Transactional
     public void deleteComment(Long commentId, Long userId) {
@@ -138,5 +174,10 @@ public class CommentServiceImpl implements CommentService {
             logger.info("评论ID：{}，递归删除其下的所有子评论，删除条数：{}", commentId, result);
         }
         logger.info("评论删除成功，评论ID:{}", commentId);
+    }
+
+    @Override
+    public int deleteCommentListByTopicId(Integer topicId) {
+        return commentMapper.deleteByQuery(new QueryWrapper().where(COMMENT.TOPIC_ID.eq(topicId)));
     }
 }

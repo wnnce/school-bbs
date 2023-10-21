@@ -69,6 +69,13 @@ public class ContentController {
         return Result.success(proposeTopicPage);
     }
 
+    @GetMapping("/topic/list")
+    @Operation(description = "按照标签获取话题列表")
+    public Result<Page<UserTopicDto>> listUserTopicByLabel(@Validated QueryTopicDto topicDto) {
+        Page<UserTopicDto> topicDtoPage = contentService.pageTopicByLabelId(topicDto);
+        return Result.success(topicDtoPage);
+    }
+
     @GetMapping("/{id}")
     @Operation(description = "获取帖子/话题详情接口")
     @Parameter(name = "id", description = "话题/帖子ID", required = true)

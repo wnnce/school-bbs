@@ -20,7 +20,7 @@ import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-13 20:58:13
- * @Description: 全局异步任务类
+ * @Description: 全局异步任务类，使用自定义的线程池执行异步任务
  */
 @Service
 public class GlobalAsyncTask {
@@ -62,6 +62,7 @@ public class GlobalAsyncTask {
      * @param userId 用户ID
      */
     public void initUserExtraInit(Long userId) {
+        // 初始化用户额外信息表
         this.executeVoidAsyncFunction(() -> {
             UserExtras extras = UserExtras.builder()
                     .userId(userId)
@@ -69,6 +70,7 @@ public class GlobalAsyncTask {
             int result = extrasMapper.insertSelective(extras);
             logger.info("用户额外信息表新增用户记录，添加结果:{}", result);
         });
+        // 初始化用户画像表
         this.executeVoidAsyncFunction(() -> {
             UserProfile profile = UserProfile.builder()
                     .userId(userId)
@@ -77,6 +79,15 @@ public class GlobalAsyncTask {
             logger.info("用户画像表新增用户记录，添加结果:{}", result);
         });
     }
+
+    /**
+     * 文件上传成功后保存文件的上传记录
+     * @param md5 文件Md5
+     * @param originName 文件的原始名称
+     * @param fileName 文件保存的名称
+     * @param size 文件大小
+     * @param fileUrl 文件在七牛云中的url
+     */
     public void saveFileUploadLog(String md5, String originName, String fileName, Long size, String fileUrl) {
         this.executeVoidAsyncFunction(() -> {
             FileUpload fileUpload = new FileUpload(md5, originName, fileName, size, fileUrl);
@@ -85,8 +96,13 @@ public class GlobalAsyncTask {
         });
     }
 
+    /**
+     * 发送帖子/话题被评论的用户消息，先判断评论的帖子/话题是否存在，再判断是不是用户自身的评论消息，条件都符号再写入用户消息表
+     * @param comment 评论对象
+     */
     public void sendTopicUserMessage(Comment comment) {
         this.executeVoidAsyncFunction(() -> {
+            // 两个异步线程查询发表评论的用户昵称以及帖子详情
             CompletableFuture<String> nickNaeFuture = this.getUserNickName(comment.getUserId());
             CompletableFuture<ForumTopic> topicFuture = CompletableFuture.supplyAsync(() -> topicMapper.selectOneByQuery(new QueryWrapper()
                     .select(FORUM_TOPIC.ID, FORUM_TOPIC.TYPE, FORUM_TOPIC.USER_ID)
@@ -111,8 +127,13 @@ public class GlobalAsyncTask {
         });
     }
 
+    /**
+     * 发送评论被回复的异步消息，先判断回复的评论是否存在，再判断是不是用户自身回复。条件都符合再写入用户消息表
+     * @param comment 评论对象
+     */
     public void sendCommentUserMessage(Comment comment) {
         this.executeVoidAsyncFunction(() -> {
+            // 两条异步线程查询发表回复的用户昵称以及上级评论的用户Id
             CompletableFuture<String> nickNameFuture = this.getUserNickName(comment.getUserId());
             CompletableFuture<Long> userIdFuture = CompletableFuture.supplyAsync(() -> commentMapper.selectOneByQueryAs(new QueryWrapper()
                     .select(COMMENT.USER_ID)
@@ -137,6 +158,12 @@ public class GlobalAsyncTask {
         });
     }
 
+    /**
+     * 更新帖子的收藏次数
+     * @param topicId 帖子/话题Id
+     * @param count 需要更新的数量
+     * @param isAdd 添加还是建设 true：添加 false：减少
+     */
     public void updateTopicStarCount(Integer topicId, int count, boolean isAdd) {
         String rowOption;
         if (isAdd) {
@@ -153,6 +180,11 @@ public class GlobalAsyncTask {
         });
     }
 
+    /**
+     * 添加帖子/话题的查看次数
+     * @param topicId 帖子/话题Id
+     * @param count 需要添加的查看次数
+     */
     public void appendTopicViewCount(Integer topicId, int count) {
         this.executeVoidAsyncFunction(() -> {
             UpdateChain.of(ForumTopic.class)
@@ -162,6 +194,11 @@ public class GlobalAsyncTask {
         });
     }
 
+    /**
+     * 私有方法，通过用户Id获取用户昵称
+     * @param userId 用户Id
+     * @return 返回用户昵称或空
+     */
     private CompletableFuture<String> getUserNickName(Long userId) {
         return CompletableFuture.supplyAsync(() -> userMapper.selectOneByQueryAs(new QueryWrapper()
                 .select(USER.NICK_NAME)
