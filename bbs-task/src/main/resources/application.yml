@@ -1,15 +1,16 @@
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: 'jdbc:postgresql://10.10.10.10:5432/school_bbs'
-    username: postgres
-    password: admin
-  rabbitmq:
-    host: 10.10.10.10
-    port: 5672
-    virtual-host: /
-    username: root
-    password: admin
+  profiles:
+    active: dev
+
+mybatis-flex:
+  mapper-locations: classpath:/mappers/*.xml
+  type-aliases-package: com.zeroxn.bbs.core.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss.SSS
 
 xunfei:
   analytics:
@@ -19,10 +20,3 @@ xunfei:
     type: 'dependent'
 analysis:
   size: 6
-
-powerjob:
-  worker:
-    app-name: bbs-task
-    server-address: 10.10.10.10:7700
-    store-strategy: memory
-    protocol: http

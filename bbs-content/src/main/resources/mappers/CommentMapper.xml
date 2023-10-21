@@ -4,7 +4,7 @@
     <update id="deleteChildrenComment">
         with recursive tree as (select id, content, rid
                                 from bbs_comment
-                                where rid = ${rid}
+                                where rid = #{rid}
                                 union all
                                 select c1.id, c1.content, c1.rid
                                 from bbs_comment as c1

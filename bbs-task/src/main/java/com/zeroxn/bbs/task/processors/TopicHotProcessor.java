@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-19 20:16:34
- * @Description:
+ * @Description: 生成热门话题任务
  */
 @Component(value = "topicHotProcessor")
 public class TopicHotProcessor implements BasicProcessor {

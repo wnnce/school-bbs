@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroxn.bbs.task.mapper.UserExtrasMapper">
+    <update id="batchDeleteUserStarByTopicIdList">
+        update bbs_user_extras
+        set topic_stars = (select array_agg(ids) from unnest(topic_stars) as ids where ids not in (${topicIds}))
+        where topic_stars &amp;&amp; ARRAY[${topicIds}]
+    </update>
+</mapper>

@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zeroxn.bbs.web.mapper.UserExtrasMapper">
     <update id="deleteTopicAfterUpdateUserStars">
-        update bbs_user_extras set topic_stars = array_remove(topic_stars, ${topicId}) where ${topicId} = ANY (topic_stars);
+        update bbs_user_extras set topic_stars = array_remove(topic_stars, #{topicId}) where #{topicId} = ANY (topic_stars);
     </update>
 
     <select id="countUserStarByTopicId" resultType="int">
-        select count(id) from bbs_user_extras where user_id = ${userId} and ${topicId} = ANY (topic_stars);
+        select count(id) from bbs_user_extras where user_id = #{userId} and #{topicId} = ANY (topic_stars);
     </select>
 
     <update id="saveTopicStar">
-        update bbs_user_extras set topic_stars = array_append(topic_stars, ${topicId}) where user_id = ${userId};
+        update bbs_user_extras set topic_stars = array_append(topic_stars, #{topicId}) where user_id = #{userId};
     </update>
 
     <update id="deleteTopicStar">
-        update bbs_user_extras set topic_stars = array_remove(topic_stars, ${topicId}) where user_id = ${userId};
+        update bbs_user_extras set topic_stars = array_remove(topic_stars, #{topicId}) where user_id = #{userId};
     </update>
 </mapper>

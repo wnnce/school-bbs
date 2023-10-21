@@ -5,6 +5,7 @@ import com.zeroxn.bbs.task.analytics.TextAnalytics;
 import com.zeroxn.bbs.task.dao.TopicCalculate;
 import com.zeroxn.bbs.task.dao.TopicDao;
 import com.zeroxn.bbs.task.handler.HotHandler;
+import com.zeroxn.bbs.task.mapper.UserExtrasMapper;
 import com.zeroxn.bbs.task.service.TopicService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +34,9 @@ public class XunfeiTest {
 
     @Autowired
     HotHandler hotHandler;
+
+    @Autowired
+    UserExtrasMapper extrasMapper;
 
     @Test
     public void testXunfeiTextAnalytics() {
@@ -83,5 +88,16 @@ public class XunfeiTest {
             calculate.setHeatLevel(heatLevel);
         });
         System.out.println(topicCalculateList);
+    }
+
+    @Test
+    public void testBatchDeleteUserStar() {
+        List<Integer> topicIdList = new ArrayList<>();
+        topicIdList.add(2);
+        topicIdList.add(11);
+        String topicIds = String.join(",", topicIdList.stream().map(Object::toString).toArray(String[]::new));
+        System.out.println(topicIds);
+        int resoult = extrasMapper.batchDeleteUserStarByTopicIdList(topicIds);
+        System.out.println("影响行数" + resoult);
     }
 }

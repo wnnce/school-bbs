@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: 'jdbc:postgresql://postgresql:5432/school_bbs'
+    username: postgres
+    password: admin
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    virtual-host: /
+    username: root
+    password: admin
+
+
+powerjob:
+  worker:
+    app-name: bbs-task
+    server-address: powerjob-server:7700
+    store-strategy: memory
+    protocol: http
