@@ -13,8 +13,20 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserTopicDto extends ForumTopic {
-
+    /**
+     * 发帖用户昵称
+     */
+    private String nickName;
+    /**
+     * 发帖用户头像地址
+     */
+    private String avatar;
+    /**
+     * 帖子是否被当前用户收藏
+     */
     private Boolean isStar;
-
+    /**
+     * 帖子的评论数
+     */
     private Integer commentCount;
 }

@@ -12,8 +12,8 @@ spring:
     password: admin
 
 wechat:
-  appid: asdasdasd
-  secret: asdasdasd
+  appid: wxb4a5026fc9990e21
+  secret: 9d68af054cf1f3ecb29c23398a9a06e7
 
 jwt:
   expire-hours: 48

@@ -31,6 +31,7 @@ import static com.zeroxn.bbs.base.entity.table.CommentTableDef.COMMENT;
 import static com.zeroxn.bbs.base.entity.table.ForumTopicTableDef.FORUM_TOPIC;
 import static com.zeroxn.bbs.base.entity.table.ProposeTopicTableDef.PROPOSE_TOPIC;
 import static com.zeroxn.bbs.base.entity.table.UserExtrasTableDef.USER_EXTRAS;
+import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
 
 /**
  * @Author: lisang
@@ -116,7 +117,7 @@ public class ContentServiceImpl implements ContentService {
         }
         QueryWrapper queryWrapper = initUserTopicQueryWrapper(0)
                 .and(postDto.getFlag() != null ? FORUM_TOPIC.FLAG.eq(postDto.getFlag()) : noCondition())
-                .groupBy(FORUM_TOPIC.ID)
+                .groupBy(FORUM_TOPIC.ID, USER.ID)
                 .orderBy(sortColumn, false);
         return topicMapper.paginateAs(postDto.getPage(), postDto.getSize(), queryWrapper, UserTopicDto.class);
     }
@@ -125,7 +126,7 @@ public class ContentServiceImpl implements ContentService {
     public Page<UserTopicDto> pageHotTopic(PageQueryDto pageDto) {
         QueryWrapper queryWrapper = initUserTopicQueryWrapper(1)
                 .where(FORUM_TOPIC.IS_HOT.eq(true))
-                .groupBy(FORUM_TOPIC.ID)
+                .groupBy(FORUM_TOPIC.ID, USER.ID)
                 .orderBy(FORUM_TOPIC.STAR_COUNT.desc())
                 .orderBy("comment_count", false)
                 .orderBy(FORUM_TOPIC.CREATE_TIME.desc());
@@ -147,7 +148,7 @@ public class ContentServiceImpl implements ContentService {
         }
         QueryWrapper queryWrapper = initUserTopicQueryWrapper(1)
                 .where(FORUM_TOPIC.ID.in(topicIdPage.getRecords()))
-                .groupBy(FORUM_TOPIC.ID);
+                .groupBy(FORUM_TOPIC.ID, USER.ID);
         List<UserTopicDto> proposeTopicList = topicMapper.selectListByQueryAs(queryWrapper, UserTopicDto.class);
         if (proposeTopicList != null && !proposeTopicList.isEmpty()) {
             proposeTopicPage.setRecords(proposeTopicList);
@@ -161,7 +162,7 @@ public class ContentServiceImpl implements ContentService {
         if (topicDto.getLabelId() != null) {
             queryWrapper.where("label_ids @> ARRAY [" + topicDto.getLabelId() + "]");
         }
-        queryWrapper.orderBy(FORUM_TOPIC.CREATE_TIME.desc()).groupBy(FORUM_TOPIC.ID);
+        queryWrapper.orderBy(FORUM_TOPIC.CREATE_TIME.desc()).groupBy(FORUM_TOPIC.ID, USER.ID);
         return topicMapper.paginateAs(topicDto.getPage(), topicDto.getSize(), queryWrapper, UserTopicDto.class);
     }
 
@@ -222,7 +223,7 @@ public class ContentServiceImpl implements ContentService {
         QueryWrapper queryWrapper = this.initUserTopicQueryWrapper(userTopicDto.getType())
                 .where(FORUM_TOPIC.USER_ID.eq(userId))
                 .orderBy(FORUM_TOPIC.CREATE_TIME.desc())
-                .groupBy(FORUM_TOPIC.ID);
+                .groupBy(FORUM_TOPIC.ID, USER.ID);
         return topicMapper.paginateAs(userTopicDto.getPage(), userTopicDto.getSize(), queryWrapper, UserTopicDto.class);
     }
 
@@ -237,7 +238,7 @@ public class ContentServiceImpl implements ContentService {
         }
         QueryWrapper queryWrapper = this.initUserTopicQueryWrapper(userTopicDto.getType())
                 .where(FORUM_TOPIC.ID.in(Arrays.stream(topicStars).toArray()))
-                .groupBy(FORUM_TOPIC.ID);
+                .groupBy(FORUM_TOPIC.ID, USER.ID);
         return topicMapper.paginateAs(userTopicDto.getPage(), userTopicDto.getSize(), queryWrapper, UserTopicDto.class);
     }
 
@@ -269,8 +270,10 @@ public class ContentServiceImpl implements ContentService {
         return QueryWrapper.create()
                 .select(FORUM_TOPIC.ALL_COLUMNS)
                 .select(count(COMMENT.ID).as("comment_count"))
+                .select(USER.NICK_NAME, USER.AVATAR)
                 .from(FORUM_TOPIC)
                 .leftJoin(COMMENT).on(COMMENT.TOPIC_ID.eq(FORUM_TOPIC.ID))
+                .leftJoin(USER).on(USER.ID.eq(FORUM_TOPIC.USER_ID))
                 .where(type != null ? FORUM_TOPIC.TYPE.eq(type) : noCondition());
     }
 }

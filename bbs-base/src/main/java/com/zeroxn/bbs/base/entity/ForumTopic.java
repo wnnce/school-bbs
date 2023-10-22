@@ -123,6 +123,7 @@ public class ForumTopic implements Serializable {
     /**
      * 状态 0：正常 1：已删除
      */
+    @Column(isLogicDelete = true)
     private Integer status;
 
 }

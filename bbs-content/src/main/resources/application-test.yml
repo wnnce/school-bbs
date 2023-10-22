@@ -1,19 +1,19 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: 'jdbc:postgresql://postgresql:5432/school_bbs'
+    url: 'jdbc:postgresql://10.10.10.12:5432/school_bbs'
     username: postgres
     password: admin
   rabbitmq:
-    host: rabbitmq
+    host: 10.10.10.12
     port: 5672
     virtual-host: /
     username: root
     password: admin
 
 wechat:
-  appid: asdasdasd
-  secret: asdasdasd
+  appid: wxb4a5026fc9990e21
+  secret: 9d68af054cf1f3ecb29c23398a9a06e7
 
 jwt:
   expire-hours: 48
