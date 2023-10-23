@@ -15,6 +15,9 @@ wechat:
   appid: wxb4a5026fc9990e21
   secret: 9d68af054cf1f3ecb29c23398a9a06e7
 
+trie:
+  path: /home/lisang/Documents/words_lines.txt
+
 jwt:
   expire-hours: 48
   audience: school_bbs
@@ -28,3 +31,9 @@ qiniu:
   secret-key: 'CymD_ID_-__AiYbnHbUkIMe1FTFXCnfC52NVEZG2'
   bucket: 'img-sr'
   bucket-domain: 'https://image.qiniu.vnc.ink/'
+
+baidu:
+  app-id: '41596274'
+  app-key: '5qPg3mUZ5CB5HSKuueEBsqaF'
+  secret-key: 'acnSBKEBSBTtL98SlgpFOZqGGhg6ngKO'
+  grant-type: 'client_credentials'

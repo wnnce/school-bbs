@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeroxn.bbs.core.cache.CacheService;
 import com.zeroxn.bbs.core.config.wechat.WechatProperties;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
+import com.zeroxn.bbs.core.utils.OkHttpClientUtils;
 import lombok.Getter;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -27,16 +28,10 @@ public class WechatService {
 
     private final WechatProperties properties;
 
-    private final OkHttpClient client;
-
-    private final ObjectMapper objectMapper;
-
     private final CacheService cacheService;
 
-    public WechatService(WechatProperties properties, OkHttpClient client, ObjectMapper objectMapper, CacheService cacheService) {
+    public WechatService(WechatProperties properties, CacheService cacheService) {
         this.properties = properties;
-        this.client = client;
-        this.objectMapper = objectMapper;
         this.cacheService = cacheService;
     }
 
@@ -57,7 +52,7 @@ public class WechatService {
         Request request = new Request.Builder()
                 .url(tokenUrl.url())
                 .build();
-        TokenResult result = this.sendRequest(request, TokenResult.class);
+        TokenResult result = OkHttpClientUtils.sendRequest(request, TokenResult.class);
         if (result != null) {
             if (result.access_token() != null && !result.access_token().isEmpty()) {
                 accessToken = result.access_token();
@@ -81,7 +76,7 @@ public class WechatService {
                 .addQueryParameter("grant_type", properties.getLoginGrantType())
                 .build();
         Request request = new Request.Builder().url(loginUrl.url()).build();
-        LoginResult result = this.sendRequest(request, LoginResult.class);
+        LoginResult result = OkHttpClientUtils.sendRequest(request, LoginResult.class);
         if (result != null) {
             if (result.openid() != null && !result.openid().isEmpty()){
                 return result.openid();
@@ -106,7 +101,7 @@ public class WechatService {
                 .url(phoneUrl.url())
                 .method("post", null)
                 .build();
-        PhoneResult result = this.sendRequest(request, PhoneResult.class);
+        PhoneResult result = OkHttpClientUtils.sendRequest(request, PhoneResult.class);
         if (result != null) {
             if (result.phone_info().phoneNumber != null && !result.phone_info().phoneNumber().isEmpty()) {
                 return result.phone_info().phoneNumber();
@@ -115,25 +110,6 @@ public class WechatService {
         return null;
     }
 
-    /**
-     * 统一发送请求方法，负责请求发送和响应数据的反序列化
-     * @param request 需要发送的请求
-     * @param clazz 需要反序列化的类型
-     * @return 返回响应参数反序列后的对象
-     * @param <T> 泛型
-     */
-    private <T> T sendRequest(Request request, Class<T> clazz) {
-        try{
-            Response response = client.newCall(request).execute();
-            if (response.isSuccessful()) {
-                String body = response.body().string();
-                return objectMapper.readValue(body, clazz);
-            }
-        }catch (IOException ex) {
-            logger.error("请求失败，错误信息：{}", ex.getMessage());
-        }
-        return null;
-    }
 
     // 临时数据封装对象
     private record LoginResult(String openid, String unionid, Integer errcode, String errmsg, String session_key) {}

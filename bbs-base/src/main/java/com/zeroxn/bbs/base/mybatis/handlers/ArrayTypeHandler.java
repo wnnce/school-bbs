@@ -18,6 +18,8 @@ public class ArrayTypeHandler extends BaseTypeHandler<Object[]> {
             typename = "integer";
         } else if (parameter instanceof String[]) {
             typename = "varchar";
+        } else if (parameter instanceof Long[]) {
+            typename = "bigint";
         }
         if (typename == null) {
             throw new TypeException("ArrayTypeHandle error, type:" + parameter.getClass().getName());

@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.config.wechat;
+package com.zeroxn.bbs.core.config.baidu;
 
 import okhttp3.OkHttpClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -8,12 +8,12 @@ import org.springframework.context.annotation.Import;
 
 /**
  * @Author: lisang
- * @DateTime: 2023-10-12 18:47:15
- * @Description: 微信接口服务自动配置类
+ * @DateTime: 2023-10-23 13:42:07
+ * @Description: 百度智能云自动配置类
  */
 @Configuration
 @ConditionalOnClass(OkHttpClient.class)
-@EnableConfigurationProperties(WechatProperties.class)
-@Import({ WechatConfigurations.class })
-public class WechatAutoConfiguration {
+@EnableConfigurationProperties(BaiduProperties.class)
+@Import({ BaiduConfigurations.class })
+public class BaiduAutoConfiguration {
 }

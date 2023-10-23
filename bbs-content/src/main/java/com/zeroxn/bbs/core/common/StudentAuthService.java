@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeroxn.bbs.core.cache.CacheService;
 import com.zeroxn.bbs.base.entity.Student;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
+import com.zeroxn.bbs.core.utils.OkHttpClientUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,7 +121,7 @@ public class StudentAuthService {
                 .post(loginBody)
                 .header("Cookie", cookie)
                 .build();
-        LoginResult loginResult = this.sendRequest(loginRequest, LoginResult.class);
+        LoginResult loginResult = OkHttpClientUtils.sendRequest(loginRequest, LoginResult.class);
         ExceptionUtils.isConditionThrowServer(loginResult == null, "学生认证失败，请重试");
         HttpUrl tokenUrl = generateBaseQueryUrl(TOKEN_URL)
                 .addQueryParameter("PORTAL_TICKET", loginResult.ticket())
@@ -130,7 +131,7 @@ public class StudentAuthService {
                 .header("Cookie", cookie)
                 .build();
         // 拿到获取用户信息需要的Token
-        TokenResult tokenResult = this.sendRequest(tokenRequest, TokenResult.class);
+        TokenResult tokenResult = OkHttpClientUtils.sendRequest(tokenRequest, TokenResult.class);
         this.validationTokenResult(tokenResult);
         String token = tokenResult.content().get("token");
         HttpUrl infoUrl = generateBaseQueryUrl(USERINFO_URL)
@@ -142,7 +143,7 @@ public class StudentAuthService {
                 .url(infoUrl.url())
                 .header("Token", token)
                 .build();
-        TokenResult infoResult = this.sendRequest(infoRequest, TokenResult.class);
+        TokenResult infoResult = OkHttpClientUtils.sendRequest(infoRequest, TokenResult.class);
         this.validationTokenResult(infoResult);
         // 拿到学生信息并返回Student对象
         Map<String, String> content = infoResult.content();
@@ -161,18 +162,6 @@ public class StudentAuthService {
         ExceptionUtils.isConditionThrowServer(result == null || !"40001".equals(result.code), "学生认证失败，请重试");
     }
 
-    private <T> T sendRequest(Request request, Class<T> clazz) {
-        try{
-            Response response = client.newCall(request).execute();
-            if (response.isSuccessful()) {
-                String body = response.body().string();
-                return objectMapper.readValue(body, clazz);
-            }
-        }catch (IOException ex) {
-            logger.error("请求失败，错误信息：{}", ex.getMessage());
-        }
-        return null;
-    }
     private HttpUrl.Builder generateBaseQueryUrl(String url) {
         return HttpUrl.get(url).newBuilder()
                 .addQueryParameter("universityId", "100007")

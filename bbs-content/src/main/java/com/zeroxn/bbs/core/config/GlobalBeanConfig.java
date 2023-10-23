@@ -12,12 +12,17 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.zeroxn.bbs.core.cache.CacheService;
 import com.zeroxn.bbs.core.cache.MemoryCacheService;
+import com.zeroxn.bbs.core.filter.TrieSensitiveTextFilter;
+import okhttp3.OkHttpClient;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -63,6 +68,20 @@ public class GlobalBeanConfig {
     }
 
     /**
+     * 注入OkHttpClient客户端
+     * @return client客户端
+     */
+    @Bean
+    @ConditionalOnMissingBean(OkHttpClient.class)
+    OkHttpClient okHttpClient() {
+        return new OkHttpClient.Builder()
+                .callTimeout(Duration.ofSeconds(10))
+                .readTimeout(Duration.ofSeconds(10))
+                .writeTimeout(Duration.ofSeconds(10))
+                .build();
+    }
+
+    /**
      * 生成帖子/话题关键字需要用到的RabbitMQ Queue
      * @return 返回需要生成的Queue
      */
@@ -78,5 +97,10 @@ public class GlobalBeanConfig {
     @Bean
     public MessageConverter jacksonMessageConverter() {
         return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public TrieSensitiveTextFilter trieFilter(ResourceLoader resourceLoader) {
+        return new TrieSensitiveTextFilter(resourceLoader);
     }
 }

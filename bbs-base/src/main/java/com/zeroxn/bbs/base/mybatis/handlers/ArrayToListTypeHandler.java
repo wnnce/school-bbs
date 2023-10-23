@@ -22,6 +22,8 @@ public class ArrayToListTypeHandler extends BaseTypeHandler<List<?>>{
             typeName = "varchar";
         } else if (firstListItem instanceof Integer) {
             typeName = "integer";
+        } else if (firstListItem instanceof Long) {
+            typeName = "bigint";
         }
         if (typeName == null){
             throw new TypeException("ArrayTypeHandle error, type:" + parameter.getClass().getName());

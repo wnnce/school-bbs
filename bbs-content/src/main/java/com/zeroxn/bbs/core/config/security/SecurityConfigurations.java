@@ -62,7 +62,7 @@ public class SecurityConfigurations {
      */
     @Bean
     public WebSecurityCustomizer ignoringCustomizer() {
-        return web -> web.ignoring().requestMatchers("/user/login", "/swagger-ui/**");
+        return web -> web.ignoring().requestMatchers("/user/login", "/swagger-ui/**", "/trie/**");
     }
 
     @Bean
