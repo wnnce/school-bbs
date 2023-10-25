@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.config.baidu;
+package com.zeroxn.bbs.task.config.baidu;
 
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,10 +1,15 @@
 package com.zeroxn.bbs.task.config;
 
+import com.zeroxn.bbs.base.cache.CacheService;
+import com.zeroxn.bbs.base.cache.MemoryCacheService;
 import com.zeroxn.bbs.task.handler.*;
+import okhttp3.OkHttpClient;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
 
 /**
  * @Author: lisang
@@ -29,5 +34,4 @@ public class BeanConfig {
         oneDayHandler.setNextHandler(thereDayHandler);
         return oneDayHandler;
     }
-
 }

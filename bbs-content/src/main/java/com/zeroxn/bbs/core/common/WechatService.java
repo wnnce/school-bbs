@@ -1,19 +1,15 @@
 package com.zeroxn.bbs.core.common;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zeroxn.bbs.core.cache.CacheService;
+import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.core.config.wechat.WechatProperties;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import com.zeroxn.bbs.core.utils.OkHttpClientUtils;
 import lombok.Getter;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.Duration;
 
 /**

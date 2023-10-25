@@ -1,15 +1,10 @@
 package com.zeroxn.bbs.core.config.wechat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zeroxn.bbs.core.cache.CacheService;
+import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.core.common.WechatService;
 import okhttp3.OkHttpClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import java.time.Duration;
 
 /**
  * @Author: lisang

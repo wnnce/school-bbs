@@ -4,6 +4,7 @@ import com.hankcs.hanlp.HanLP;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.update.UpdateChain;
+import com.mybatisflex.core.util.UpdateEntity;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.task.analytics.TextAnalytics;
 import com.zeroxn.bbs.task.dao.TopicDao;
@@ -137,5 +138,12 @@ public class TopicServiceImpl implements TopicService {
         logger.info("用户推荐表删除完成，影响行数：{}", result4);
         logger.info("{}个话题删除成功", topicIdList.size());
         return true;
+    }
+
+    @Override
+    public void updateTopicStatus(Integer topicId, int status) {
+        ForumTopic forumTopic = UpdateEntity.of(ForumTopic.class, topicId);
+        forumTopic.setStatus(status);
+        topicMapper.update(forumTopic);
     }
 }

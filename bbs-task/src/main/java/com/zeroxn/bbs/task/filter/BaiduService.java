@@ -1,13 +1,15 @@
-package com.zeroxn.bbs.core.common;
+package com.zeroxn.bbs.task.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.zeroxn.bbs.core.cache.CacheService;
-import com.zeroxn.bbs.core.config.baidu.BaiduProperties;
-import com.zeroxn.bbs.core.utils.OkHttpClientUtils;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zeroxn.bbs.base.cache.CacheService;
+import com.zeroxn.bbs.task.config.baidu.BaiduProperties;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -24,9 +26,13 @@ public class BaiduService {
     private static final String VIDEO_URL = "https://aip.baidubce.com/rest/2.0/solution/v1/video_censor/v2/user_defined";
     private final BaiduProperties properties;
     private final CacheService cacheService;
-    public BaiduService(BaiduProperties properties, CacheService cacheService) {
+    private final OkHttpClient client;
+    private final ObjectMapper objectMapper;
+    public BaiduService(BaiduProperties properties, CacheService cacheService, OkHttpClient client, ObjectMapper objectMapper) {
         this.properties = properties;
         this.cacheService = cacheService;
+        this.client = client;
+        this.objectMapper = objectMapper;
     }
 
     public ReviewResult textReview(String text) {
@@ -45,7 +51,7 @@ public class BaiduService {
                 .url(httpUrl.url())
                 .post(requestBody)
                 .build();
-        return OkHttpClientUtils.sendRequest(request, ReviewResult.class);
+        return this.sendRequest(request, ReviewResult.class);
     }
 
     public JsonNode imageReview(String imageUrl) {
@@ -68,7 +74,7 @@ public class BaiduService {
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("Accept", "application/json")
                 .build();
-        return OkHttpClientUtils.sendRequest(request, JsonNode.class);
+        return this.sendRequest(request, JsonNode.class);
     }
 
     public JsonNode videoReview(String taskId, String videoName, String videoUrl) {
@@ -90,7 +96,7 @@ public class BaiduService {
                 .post(requestBody)
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .build();
-        return OkHttpClientUtils.sendRequest(request, JsonNode.class);
+        return this.sendRequest(request, JsonNode.class);
     }
 
     private String makeAccessToken() {
@@ -106,7 +112,7 @@ public class BaiduService {
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
                     .build();
-            AuthResult authResult = OkHttpClientUtils.sendRequest(request, AuthResult.class);
+            AuthResult authResult = this.sendRequest(request, AuthResult.class);
             if (authResult == null) {
                 return null;
             }
@@ -114,6 +120,21 @@ public class BaiduService {
             cacheService.setCache("baidu_access_token", accessToken, Duration.ofSeconds(authResult.expires_in()));
         }
         return accessToken;
+    }
+
+    public <T> T sendRequest(Request request, Class<T> clazz) {
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String body = response.body().string();
+                return objectMapper.readValue(body, clazz);
+            }else {
+                logger.error("OkHttp请求失败，错误码：{}，错误消息：{}", response.code(), response.message());
+            }
+        }catch (IOException e) {
+            logger.error("OkHttp发送请求异常，错误信息：{}", e.getMessage());
+        }
+        return null;
     }
 
     public record ReviewResult(Long log_id, String conclusion, Integer conclusionType, List<ResultData> data) {}

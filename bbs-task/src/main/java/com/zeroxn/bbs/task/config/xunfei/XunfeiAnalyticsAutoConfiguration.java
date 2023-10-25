@@ -14,6 +14,6 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ConditionalOnClass(OkHttp.class)
 @EnableConfigurationProperties(XunfeiAnalyticsProperties.class)
-@Import({ XunfeiAnalyticsConfigurations.ClientConfiguration.class, XunfeiAnalyticsConfigurations.AnalyticsConfiguration.class })
+@Import({ XunfeiAnalyticsConfigurations.AnalyticsConfiguration.class })
 public class XunfeiAnalyticsAutoConfiguration {
 }

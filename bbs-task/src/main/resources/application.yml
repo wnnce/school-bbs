@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: test
+    active: dev
 
 mybatis-flex:
   mapper-locations: classpath:/mappers/*.xml

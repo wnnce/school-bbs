@@ -13,6 +13,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.zeroxn.bbs.task.analytics.TextAnalytics;
 import com.zeroxn.bbs.task.analytics.XunfeiTextAnalytics;
 import okhttp3.OkHttpClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
 import java.time.Duration;
@@ -27,16 +28,6 @@ import java.time.format.DateTimeFormatter;
  * @Description:
  */
 public class XunfeiAnalyticsConfigurations {
-    static class ClientConfiguration {
-        @Bean
-        OkHttpClient okHttpClient() {
-            return new OkHttpClient.Builder()
-                    .readTimeout(Duration.ofSeconds(10))
-                    .writeTimeout(Duration.ofSeconds(10))
-                    .callTimeout(Duration.ofSeconds(10))
-                    .build();
-        }
-    }
     static class AnalyticsConfiguration {
         @Bean
         public ObjectMapper objectMapper() {

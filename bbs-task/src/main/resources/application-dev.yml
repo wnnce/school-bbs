@@ -18,3 +18,8 @@ powerjob:
     server-address: 10.10.10.10:7700
     store-strategy: memory
     protocol: http
+baidu:
+  app-id: '41596274'
+  app-key: '5qPg3mUZ5CB5HSKuueEBsqaF'
+  secret-key: 'acnSBKEBSBTtL98SlgpFOZqGGhg6ngKO'
+  grant-type: 'client_credentials'

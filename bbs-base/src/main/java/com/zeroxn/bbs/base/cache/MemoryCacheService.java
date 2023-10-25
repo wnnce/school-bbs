@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.cache;
+package com.zeroxn.bbs.base.cache;
 
 import java.time.Duration;
 import java.util.Map;

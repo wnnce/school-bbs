@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.config.baidu;
+package com.zeroxn.bbs.task.config.baidu;
 
 import okhttp3.OkHttpClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -14,6 +14,6 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @ConditionalOnClass(OkHttpClient.class)
 @EnableConfigurationProperties(BaiduProperties.class)
-@Import({ BaiduConfigurations.class })
+@Import({ BaiduConfigurations.ClientConfiguration.class, BaiduConfigurations.ContentSecurityReviewConfiguration.class })
 public class BaiduAutoConfiguration {
 }

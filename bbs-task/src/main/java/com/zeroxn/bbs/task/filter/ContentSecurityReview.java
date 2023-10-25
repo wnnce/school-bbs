@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.filter;
+package com.zeroxn.bbs.task.filter;
 
 /**
  * @Author: lisang
@@ -6,7 +6,7 @@ package com.zeroxn.bbs.core.filter;
  * @Description: 内容审核接口，提供文本内容审核、图片审核、视频审核
  */
 public interface ContentSecurityReview {
-    String filterText(String text);
-    boolean filterImage(String imageUrl);
-    boolean filterVideo(String taskId, String videoName, String videoUrl);
+    Boolean filterText(String text);
+    Boolean filterImage(String imageUrl);
+    Boolean filterVideo(String taskId, String videoName, String videoUrl);
 }

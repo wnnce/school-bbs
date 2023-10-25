@@ -31,9 +31,3 @@ qiniu:
   secret-key: 'CymD_ID_-__AiYbnHbUkIMe1FTFXCnfC52NVEZG2'
   bucket: 'img-sr'
   bucket-domain: 'https://image.qiniu.vnc.ink/'
-
-baidu:
-  app-id: '41596274'
-  app-key: '5qPg3mUZ5CB5HSKuueEBsqaF'
-  secret-key: 'acnSBKEBSBTtL98SlgpFOZqGGhg6ngKO'
-  grant-type: 'client_credentials'

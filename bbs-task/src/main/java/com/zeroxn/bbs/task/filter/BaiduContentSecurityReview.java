@@ -1,8 +1,6 @@
-package com.zeroxn.bbs.core.filter;
+package com.zeroxn.bbs.task.filter;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.zeroxn.bbs.core.common.BaiduService;
-import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,33 +12,43 @@ import org.slf4j.LoggerFactory;
 public class BaiduContentSecurityReview implements ContentSecurityReview {
     private static final Logger logger = LoggerFactory.getLogger(BaiduContentSecurityReview.class);
     private final BaiduService baiduService;
-    private final SensitiveTextFilter textFilter;
-
-    public BaiduContentSecurityReview(BaiduService baiduService, SensitiveTextFilter textFilter) {
+    public BaiduContentSecurityReview(BaiduService baiduService) {
         this.baiduService = baiduService;
-        this.textFilter = textFilter;
     }
     @Override
-    public String filterText(String text) {
-        return textFilter.filterText(text);
+    public Boolean filterText(String text) {
+        BaiduService.ReviewResult reviewResult = baiduService.textReview(text);
+        if (reviewResult == null) {
+            logger.error("文本审核调用失败");
+            return null;
+        }
+        return reviewResult.conclusionType() == 1;
     }
 
     @Override
-    public boolean filterImage(String imageUrl) {
+    public Boolean filterImage(String imageUrl) {
         JsonNode jsonNode = baiduService.imageReview(imageUrl);
-        ExceptionUtils.isConditionThrowRequest(jsonNode == null, "图片审核失败，请重试");
-        if (!jsonNode.path("error_code").isEmpty()) {
+        if (jsonNode == null) {
+            logger.error("图片审核调用失败");
+            return null;
+        }
+        if (!jsonNode.get("error_code").isEmpty()) {
             logger.error("图片审核失败，错误码：{},错误消息：{}", jsonNode.path("error_code").toString(), jsonNode.path("error_msg").toString());
+            return null;
         }
         return jsonNode.path("conclusionType").asInt() == 1;
     }
 
     @Override
-    public boolean filterVideo(String taskId, String videoName, String videoUrl) {
+    public Boolean filterVideo(String taskId, String videoName, String videoUrl) {
         JsonNode jsonNode = baiduService.videoReview(taskId, videoName, videoUrl);
-        ExceptionUtils.isConditionThrowRequest(jsonNode == null, "视频审核失败，请重试");
-        if (!jsonNode.path("error_code").isEmpty()) {
+        if (jsonNode == null) {
+            logger.error("视频审核调用失败");
+            return null;
+        }
+        if (!jsonNode.get("error_code").isEmpty()) {
             logger.error("视频审核失败，错误码：{},错误消息：{}", jsonNode.path("error_code").toString(), jsonNode.path("error_msg").toString());
+            return null;
         }
         return jsonNode.path("conclusionType").asInt() == 1;
     }
