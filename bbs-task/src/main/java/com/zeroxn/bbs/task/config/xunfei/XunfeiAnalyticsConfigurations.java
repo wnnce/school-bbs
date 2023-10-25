@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter;
 public class XunfeiAnalyticsConfigurations {
     static class ClientConfiguration {
         @Bean
-         OkHttpClient okHttpClient() {
+        OkHttpClient okHttpClient() {
             return new OkHttpClient.Builder()
                     .readTimeout(Duration.ofSeconds(10))
                     .writeTimeout(Duration.ofSeconds(10))

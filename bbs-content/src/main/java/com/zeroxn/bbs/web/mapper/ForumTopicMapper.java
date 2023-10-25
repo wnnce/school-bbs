@@ -19,4 +19,6 @@ public interface ForumTopicMapper extends BaseMapper<ForumTopic> {
      * @return 返回帖子/话题的详细信息
      */
     UserTopicDto queryTopic(@Param("topicId") Integer topicId, @Param("userId") Long userId);
+
+    int deleteTopic(@Param("topicId") Integer topicId);
 }

@@ -121,9 +121,14 @@ public class ForumTopic implements Serializable {
     private Long userId;
 
     /**
-     * 状态 0：正常 1：已删除
+     * 状态 0：正常 1：待审核 2：审核未通过 3：已删除
      */
-    @Column(isLogicDelete = true)
     private Integer status;
+
+    /**
+     * 最后更新时间（包含审核通过和删除等）
+     */
+    @Column(onInsertValue = "current_timestamp")
+    private LocalDateTime lastUpdateTime;
 
 }

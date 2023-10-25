@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @DateTime: 2023-10-10 20:48:07
  * @Description: 论坛程序启动类
  */
-@EnableTransactionManagement
 @SpringBootApplication
+@EnableTransactionManagement
 @MapperScan("com.zeroxn.bbs.web.mapper")
 public class ForumApplication {
     public static void main(String[] args) {

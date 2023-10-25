@@ -7,6 +7,7 @@ import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.base.entity.ProposeTopic;
 import com.zeroxn.bbs.base.entity.UserExtras;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
+import com.zeroxn.bbs.core.filter.SensitiveTextFilter;
 import com.zeroxn.bbs.web.dto.*;
 import com.zeroxn.bbs.web.mapper.ForumTopicMapper;
 import com.zeroxn.bbs.web.mapper.ProposeTopicMapper;
@@ -21,10 +22,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mybatisflex.core.query.QueryMethods.*;
 import static com.zeroxn.bbs.base.entity.table.CommentTableDef.COMMENT;
@@ -50,16 +53,19 @@ public class ContentServiceImpl implements ContentService {
     private final UserExtrasMapper extrasMapper;
     private final ProposeTopicMapper proposeMapper;
     private final GlobalAsyncTask asyncTask;
+    private final SensitiveTextFilter textFilter;
     private final RabbitTemplate rabbitTemplate;
 
     public ContentServiceImpl(ForumTopicMapper topicMapper, GlobalAsyncTask asyncTask, UserExtrasMapper extrasMapper,
-                              ProposeTopicMapper proposeMapper, RabbitTemplate rabbitTemplate, CommentService commentService) {
+                              ProposeTopicMapper proposeMapper, RabbitTemplate rabbitTemplate, CommentService commentService,
+                              SensitiveTextFilter textFilter) {
         this.topicMapper = topicMapper;
         this.asyncTask = asyncTask;
         this.extrasMapper = extrasMapper;
         this.proposeMapper = proposeMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.commentService = commentService;
+        this.textFilter = textFilter;
     }
 
     /**
@@ -68,15 +74,11 @@ public class ContentServiceImpl implements ContentService {
      */
     @Override
     public void saveTopic(ForumTopic topic) {
-        ExceptionUtils.isConditionThrowRequest(checkTopicPublishTime(topic.getUserId(), false), "话题发布过于频繁");
-        // TODO 帖子内容敏感词审核
+        this.checkSensitiveWord(topic.getTitle() + "," + topic.getContent());
+        this.checkTopicPublishTime(topic.getUserId(), false);
         topic.setType(1);
         topicMapper.insertSelective(topic);
         logger.info("话题保存成功，TopicId:{}", topic.getId());
-        /*// 调用异步方法生成话题关键字
-        asyncTask.handlerTopicContentKey(topic);
-        // 调用异步方法处理话题推送
-        asyncTask.handlerTopicPropose(topic);*/
         rabbitTemplate.convertAndSend("bbs.topic", topic);
         logger.info("RabbitMQ发送消息成功，TopicId:{}", topic.getId());
     }
@@ -87,13 +89,11 @@ public class ContentServiceImpl implements ContentService {
      */
     @Override
     public void savePost(ForumTopic post) {
-        ExceptionUtils.isConditionThrowRequest(checkTopicPublishTime(post.getUserId(), true), "帖子发布过于频繁");
+        this.checkSensitiveWord(post.getTitle() + "," + post.getContent());
+        this.checkTopicPublishTime(post.getUserId(), true);
         post.setType(0);
         topicMapper.insertSelective(post);
         logger.info("帖子保存成功，TopicId：{}", post.getId());
-        /*// 调用异步方法生成帖子关键字
-        asyncTask.handlerTopicContentKey(post);
-        logger.info("return");*/
         rabbitTemplate.convertAndSend("bbs.topic", post);
         logger.info("RabbitMQ发送消息成功，TopicId:{}", post.getId());
     }
@@ -117,15 +117,22 @@ public class ContentServiceImpl implements ContentService {
         }
         QueryWrapper queryWrapper = initUserTopicQueryWrapper(0)
                 .and(postDto.getFlag() != null ? FORUM_TOPIC.FLAG.eq(postDto.getFlag()) : noCondition())
+                .and(FORUM_TOPIC.STATUS.eq(0))
                 .groupBy(FORUM_TOPIC.ID, USER.ID)
                 .orderBy(sortColumn, false);
         return topicMapper.paginateAs(postDto.getPage(), postDto.getSize(), queryWrapper, UserTopicDto.class);
     }
 
+    /**
+     * 获取热门话题
+     * @param pageDto 分页查询参数
+     * @return 返回热门话题或空
+     */
     @Override
     public Page<UserTopicDto> pageHotTopic(PageQueryDto pageDto) {
         QueryWrapper queryWrapper = initUserTopicQueryWrapper(1)
-                .where(FORUM_TOPIC.IS_HOT.eq(true))
+                .and(FORUM_TOPIC.IS_HOT.eq(true))
+                .and(FORUM_TOPIC.STATUS.eq(0))
                 .groupBy(FORUM_TOPIC.ID, USER.ID)
                 .orderBy(FORUM_TOPIC.STAR_COUNT.desc())
                 .orderBy("comment_count", false)
@@ -133,6 +140,12 @@ public class ContentServiceImpl implements ContentService {
         return topicMapper.paginateAs(pageDto.getPage(), pageDto.getSize(), queryWrapper, UserTopicDto.class);
     }
 
+    /**
+     * 获取用户推荐话题
+     * @param pageDto 分页查询参数
+     * @param userId 用户id
+     * @return 返回用户推荐话题列表或空
+     */
     @Override
     public Page<UserTopicDto> pageProposeTopic(PageQueryDto pageDto, Long userId) {
         Page<Integer> topicIdPage = QueryChain.of(ProposeTopic.class)
@@ -147,7 +160,8 @@ public class ContentServiceImpl implements ContentService {
             return proposeTopicPage;
         }
         QueryWrapper queryWrapper = initUserTopicQueryWrapper(1)
-                .where(FORUM_TOPIC.ID.in(topicIdPage.getRecords()))
+                .and(FORUM_TOPIC.ID.in(topicIdPage.getRecords()))
+                .and(FORUM_TOPIC.STATUS.eq(0))
                 .groupBy(FORUM_TOPIC.ID, USER.ID);
         List<UserTopicDto> proposeTopicList = topicMapper.selectListByQueryAs(queryWrapper, UserTopicDto.class);
         if (proposeTopicList != null && !proposeTopicList.isEmpty()) {
@@ -156,20 +170,35 @@ public class ContentServiceImpl implements ContentService {
         return proposeTopicPage;
     }
 
+    /**
+     * 通过标签Id获取话题列表
+     * @param topicDto 查询参数
+     * @return 返回话题列表或空
+     */
     @Override
     public Page<UserTopicDto> pageTopicByLabelId(QueryTopicDto topicDto) {
         QueryWrapper queryWrapper = initUserTopicQueryWrapper(1);
         if (topicDto.getLabelId() != null) {
-            queryWrapper.where("label_ids @> ARRAY [" + topicDto.getLabelId() + "]");
+            queryWrapper.and("label_ids @> ARRAY [" + topicDto.getLabelId() + "]");
         }
+        queryWrapper.and(FORUM_TOPIC.STATUS.eq(0));
         queryWrapper.orderBy(FORUM_TOPIC.CREATE_TIME.desc()).groupBy(FORUM_TOPIC.ID, USER.ID);
         return topicMapper.paginateAs(topicDto.getPage(), topicDto.getSize(), queryWrapper, UserTopicDto.class);
     }
 
+    /**
+     * 获取帖子/话题详情，用户可以获取到自己待审核以及审核未通过的帖子 其他用户无法获取
+     * @param topicId 帖子/话题Id
+     * @param userId 用户id
+     * @return 返回详情或空
+     */
     @Override
     public UserTopicDto queryTopic(Integer topicId, Long userId) {
         UserTopicDto topicDto = topicMapper.queryTopic(topicId, userId);
         ExceptionUtils.isConditionThrow(topicDto == null, HttpStatus.NOT_FOUND, "资源不存在");
+        if (!topicDto.getUserId().equals(userId) && topicDto.getStatus() != 0) {
+            ExceptionUtils.throwRequestException("帖子审核中或者审核未通过");
+        }
         asyncTask.appendTopicViewCount(topicId, 1);
         return topicDto;
     }
@@ -184,22 +213,26 @@ public class ContentServiceImpl implements ContentService {
     @Transactional
     public void deleteTopic(Integer topicId, Long userId) {
         ForumTopic findTopic = topicMapper.selectOneByQuery(new QueryWrapper()
-                .select(FORUM_TOPIC.ID, FORUM_TOPIC.USER_ID)
+                .select(FORUM_TOPIC.ID, FORUM_TOPIC.USER_ID, FORUM_TOPIC.STATUS)
                 .where(FORUM_TOPIC.ID.eq(topicId)));
         ExceptionUtils.isConditionThrowRequest(findTopic == null, "需要删除的内容不存在");
         ExceptionUtils.isConditionThrowRequest(findTopic.getUserId() != userId, "该用户无删除权限");
-        int deleteResult = topicMapper.deleteById(topicId);
-        if (deleteResult > 0) {
+        int deleteResult = topicMapper.deleteTopic(topicId);
+        if (deleteResult <= 0) {
+            logger.info("删除帖子/话题失败，帖子/话题不存在");
+            return;
+        }
+        if (findTopic.getStatus() == 0) {
             int result1 = extrasMapper.deleteTopicAfterUpdateUserStars(topicId);
             logger.info("删除帖子后移除用户收藏，TopicId:{}，受影响的用户数：{}", topicId, result1);
             int result2 = proposeMapper.deleteProposeTopicByTopicId(topicId);
             logger.info("删除帖子后移除用户推荐，TopicId:{}，受影响的用户数：{}", topicId, result2);
             int result3 = commentService.deleteCommentListByTopicId(topicId);
             logger.info("删除帖子后删除帖子评论，TopicId：{}，删除的评论数：{}", topicId, result3);
-            logger.info("删除Topic成功，topicId：{}", topicId);
         }else {
-            logger.info("删除帖子/话题失败，帖子/话题不存在");
+            logger.info("帖子状态异常，跳过其他删除逻辑。帖子状态：{}", findTopic.getStatus());
         }
+        logger.info("删除Topic成功，topicId：{}", topicId);
     }
 
     @Override
@@ -218,14 +251,22 @@ public class ContentServiceImpl implements ContentService {
         asyncTask.updateTopicStarCount(topicId, 1, false);
     }
 
+    /**
+     * 获取用户发布的所有帖子/话题
+     * @param userTopicDto 查询参数
+     * @param userId 用户Id
+     * @return 返回帖子/话题列表或空
+     */
     @Override
     public Page<UserTopicDto> pageUserPublishTopic(UserTopicQueryDto userTopicDto, Long userId) {
         QueryWrapper queryWrapper = this.initUserTopicQueryWrapper(userTopicDto.getType())
-                .where(FORUM_TOPIC.USER_ID.eq(userId))
+                .and(FORUM_TOPIC.USER_ID.eq(userId))
+                .and(FORUM_TOPIC.STATUS.ne(3))
                 .orderBy(FORUM_TOPIC.CREATE_TIME.desc())
                 .groupBy(FORUM_TOPIC.ID, USER.ID);
         return topicMapper.paginateAs(userTopicDto.getPage(), userTopicDto.getSize(), queryWrapper, UserTopicDto.class);
     }
+
 
     @Override
     public Page<UserTopicDto> pageUserStarTopic(UserTopicQueryDto userTopicDto, Long userId) {
@@ -237,33 +278,45 @@ public class ContentServiceImpl implements ContentService {
             return null;
         }
         QueryWrapper queryWrapper = this.initUserTopicQueryWrapper(userTopicDto.getType())
-                .where(FORUM_TOPIC.ID.in(Arrays.stream(topicStars).toArray()))
+                .and(FORUM_TOPIC.ID.in((Object[]) topicStars))
+                .and(FORUM_TOPIC.STATUS.eq(0))
                 .groupBy(FORUM_TOPIC.ID, USER.ID);
         return topicMapper.paginateAs(userTopicDto.getPage(), userTopicDto.getSize(), queryWrapper, UserTopicDto.class);
+
     }
 
+    /**
+     * 检查发帖内容是否存在敏感词
+     * @param text 文本内容
+     */
+    private void checkSensitiveWord(String text) {
+        String word = textFilter.filterText(text);
+        ExceptionUtils.isConditionThrowRequest(word != null, "输入内容不允许包含'" + word + "'");
+    }
     /**
      * 私有方法，检查用户是否触发了发帖限制
      * 触发逻辑为：一个小时内发布帖子/话题超过2条则出发  帖子与话题分开计算
      * @param userId 用户id
      * @param isPost true:帖子 false：话题
-     * @return 返回是否触发
      */
-    private boolean checkTopicPublishTime(Long userId, boolean isPost) {
+    private void checkTopicPublishTime(Long userId, boolean isPost) {
         List<Object> createTimeList = QueryChain.of(ForumTopic.class)
                 .select(FORUM_TOPIC.CREATE_TIME)
                 .where(FORUM_TOPIC.USER_ID.eq(userId))
                 .and(FORUM_TOPIC.TYPE.eq(isPost ? 0 : 1))
+                .and(FORUM_TOPIC.STATUS.ne(3))
                 .orderBy(FORUM_TOPIC.CREATE_TIME.desc())
                 .limit(2)
                 .listAs(Object.class);
         if (createTimeList == null || createTimeList.size() < 2) {
-            return false;
+            return;
         }
         Timestamp lastCreateTime = (Timestamp) createTimeList.get(1);
         long lastMilli = lastCreateTime.getTime();
         long currentMillis = System.currentTimeMillis();
-        return currentMillis - lastMilli <= Duration.ofHours(PUBLISH_TOPIC_LIMIT_DATE_HOUR).toMillis();
+        if (currentMillis - lastMilli <= Duration.ofHours(PUBLISH_TOPIC_LIMIT_DATE_HOUR).toMillis()) {
+            ExceptionUtils.throwRequestException(isPost ? "帖子发布过于频繁" : "话题发布过于频繁");
+        }
     }
 
     private QueryWrapper initUserTopicQueryWrapper(Integer type) {
