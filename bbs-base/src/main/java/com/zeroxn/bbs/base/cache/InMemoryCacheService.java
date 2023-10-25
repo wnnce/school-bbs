@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @DateTime: 2023-10-12 19:33:47
  * @Description: 基于内存的缓存管理器
  */
-public class MemoryCacheService implements CacheService {
+public class InMemoryCacheService implements CacheService {
     /**
      * 多线程安全的Map
      */

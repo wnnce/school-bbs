@@ -2,6 +2,8 @@ package com.zeroxn.bbs.task.mapper;
 
 import com.mybatisflex.core.BaseMapper;
 import com.zeroxn.bbs.base.entity.ForumTopic;
+import org.apache.ibatis.annotations.Param;
+import scala.Int;
 
 /**
  * @Author: lisang
@@ -9,4 +11,5 @@ import com.zeroxn.bbs.base.entity.ForumTopic;
  * @Description:
  */
 public interface ForumTopicMapper extends BaseMapper<ForumTopic> {
+    int updateTopicStatus(@Param("topicId") Integer topicId,@Param("status") int status);
 }

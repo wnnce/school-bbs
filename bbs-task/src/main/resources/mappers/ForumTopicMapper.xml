@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zeroxn.bbs.task.mapper.ForumTopicMapper">
+    <update id="updateTopicStatus">
+        update bbs_forum_topic set status = #{status}, last_update_time = current_timestamp where id = #{topicId};
+    </update>
+</mapper>

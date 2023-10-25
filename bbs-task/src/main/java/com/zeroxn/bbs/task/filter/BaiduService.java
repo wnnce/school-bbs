@@ -63,7 +63,6 @@ public class BaiduService {
         HttpUrl httpUrl = HttpUrl.get(IMAGE_URL).newBuilder()
                 .addQueryParameter("access_token", accessToken)
                 .build();
-        System.out.println(imageUrl);
         RequestBody requestBody = new FormBody.Builder()
                 .add("imgUrl", imageUrl)
                 .add("imgType", "0")

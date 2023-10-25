@@ -29,11 +29,11 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
 
     @Override
     public void updateReviewTaskStage(Integer topicId, Boolean stage1, Boolean stage2, Boolean stage3) {
-        ReviewTask reviewTask = UpdateEntity.of(ReviewTask.class, topicId);
+        ReviewTask reviewTask = UpdateEntity.of(ReviewTask.class);
         reviewTask.setStage1(stage1);
         reviewTask.setStage2(stage2);
         reviewTask.setStage3(stage3);
-        taskMapper.update(reviewTask);
+        taskMapper.updateByQuery(reviewTask, new QueryWrapper().where(REVIEW_TASK.TOPIC_ID.eq(topicId)));
     }
 
     @Override

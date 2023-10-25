@@ -32,11 +32,11 @@ public class BaiduContentSecurityReview implements ContentSecurityReview {
             logger.error("图片审核调用失败");
             return null;
         }
-        if (!jsonNode.get("error_code").isEmpty()) {
+        if (!jsonNode.path("error_code").isMissingNode()) {
             logger.error("图片审核失败，错误码：{},错误消息：{}", jsonNode.path("error_code").toString(), jsonNode.path("error_msg").toString());
             return null;
         }
-        return jsonNode.path("conclusionType").asInt() == 1;
+        return jsonNode.get("conclusionType").asInt() == 1;
     }
 
     @Override
@@ -46,10 +46,10 @@ public class BaiduContentSecurityReview implements ContentSecurityReview {
             logger.error("视频审核调用失败");
             return null;
         }
-        if (!jsonNode.get("error_code").isEmpty()) {
+        if (!jsonNode.path("error_code").isMissingNode()) {
             logger.error("视频审核失败，错误码：{},错误消息：{}", jsonNode.path("error_code").toString(), jsonNode.path("error_msg").toString());
             return null;
         }
-        return jsonNode.path("conclusionType").asInt() == 1;
+        return jsonNode.get("conclusionType").asInt() == 1;
     }
 }

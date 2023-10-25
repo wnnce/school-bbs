@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.powerjob.worker.log.OmsLogger;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.mybatisflex.core.query.QueryMethods.count;
@@ -142,8 +143,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public void updateTopicStatus(Integer topicId, int status) {
-        ForumTopic forumTopic = UpdateEntity.of(ForumTopic.class, topicId);
-        forumTopic.setStatus(status);
-        topicMapper.update(forumTopic);
+        int result = topicMapper.updateTopicStatus(topicId, status);
+        logger.info("更新帖子状态完成，topicId：{}, newStatus:{}, 影响行数:{}", topicId, status, result);
     }
 }

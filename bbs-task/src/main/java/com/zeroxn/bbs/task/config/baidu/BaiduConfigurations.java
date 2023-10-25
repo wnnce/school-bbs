@@ -2,7 +2,7 @@ package com.zeroxn.bbs.task.config.baidu;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeroxn.bbs.base.cache.CacheService;
-import com.zeroxn.bbs.base.cache.MemoryCacheService;
+import com.zeroxn.bbs.base.cache.InMemoryCacheService;
 import com.zeroxn.bbs.task.filter.BaiduContentSecurityReview;
 import com.zeroxn.bbs.task.filter.BaiduService;
 import com.zeroxn.bbs.task.filter.ContentSecurityReview;
@@ -30,7 +30,7 @@ public class BaiduConfigurations {
     static class ContentSecurityReviewConfiguration {
         @Bean
         CacheService cacheService() {
-            return new MemoryCacheService();
+            return new InMemoryCacheService();
         }
         @Bean
         BaiduService baiduService(BaiduProperties properties, CacheService cacheService, OkHttpClient client, ObjectMapper objectMapper) {

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.zeroxn.bbs.base.cache.CacheService;
-import com.zeroxn.bbs.base.cache.MemoryCacheService;
+import com.zeroxn.bbs.base.cache.InMemoryCacheService;
 import com.zeroxn.bbs.core.filter.TrieSensitiveTextFilter;
 import okhttp3.OkHttpClient;
 import org.springframework.amqp.core.Queue;
@@ -64,7 +64,7 @@ public class GlobalBeanConfig {
      */
     @Bean
     public CacheService cacheService() {
-        return new MemoryCacheService();
+        return new InMemoryCacheService();
     }
 
     /**

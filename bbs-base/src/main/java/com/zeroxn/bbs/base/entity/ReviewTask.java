@@ -34,17 +34,14 @@ public class ReviewTask {
     /**
      * 一阶段任务的执行结果
      */
-    @Column(value = "stage_1")
     private Boolean stage1;
     /**
      * 二阶段任务的执行结果
      */
-    @Column(value = "stage_2")
     private Boolean stage2;
     /**
      * 三阶段任务的执行结果
      */
-    @Column(value = "stage_3")
     private Boolean stage3;
     /**
      * 任务的最后一次执行时间
