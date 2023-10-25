@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.task.handler;
+package com.zeroxn.bbs.task.handler.hot;
 
 
 import com.zeroxn.bbs.task.dao.TopicCalculate;

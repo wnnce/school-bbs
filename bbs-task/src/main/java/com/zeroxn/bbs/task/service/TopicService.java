@@ -19,4 +19,5 @@ public interface TopicService {
     List<TopicDao> listNotHotTopic();
     boolean deleteTopicByTopicIdList(List<Integer> topicIdList, OmsLogger logger);
     void updateTopicStatus(Integer topicId, int status);
+    ForumTopic queryTopic(Integer topicId);
 }

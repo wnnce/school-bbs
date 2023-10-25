@@ -8,6 +8,8 @@ import com.zeroxn.bbs.task.service.ReviewTaskService;
 import org.springframework.stereotype.Service;
 import scala.Int;
 
+import java.util.List;
+
 import static com.zeroxn.bbs.base.entity.table.ReviewTaskTableDef.REVIEW_TASK;
 
 /**
@@ -37,7 +39,22 @@ public class ReviewTaskServiceImpl implements ReviewTaskService {
     }
 
     @Override
-    public void deleteReviewTask(Integer topicId) {
+    public void updateReviewTask(ReviewTask task) {
+        taskMapper.update(task);
+    }
+
+    @Override
+    public void deleteReviewTaskByTopicId(Integer topicId) {
         taskMapper.deleteByQuery(new QueryWrapper().where(REVIEW_TASK.TOPIC_ID.eq(topicId)));
+    }
+
+    @Override
+    public void deleteReviewTask(Integer taskId) {
+        taskMapper.deleteById(taskId);
+    }
+
+    @Override
+    public List<ReviewTask> listAllReviewTask() {
+        return taskMapper.selectListByQuery(new QueryWrapper().where(REVIEW_TASK.RETRY_COUNT.le(4)));
     }
 }

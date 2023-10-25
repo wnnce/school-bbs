@@ -50,6 +50,8 @@ public class XunfeiTextAnalytics implements TextAnalytics{
                 }else {
                     return keywordList.subList(0, size).stream().map(Keyword::word).toList();
                 }
+            }else {
+                logger.error("讯飞接口响应码错误，响应内容：{}", xunfeiResult);
             }
 
         }catch (IOException ex) {

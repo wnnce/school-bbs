@@ -64,7 +64,7 @@ public class TopicServiceImpl implements TopicService {
         }else {
             keywordList = textAnalytics.keywordsExtraction(document, keywordSize);
             if (keywordList == null) {
-                logger.error("讯飞生成文章关键子失败，调用本地生成");
+                logger.error("讯飞生成文章关键字失败，调用本地生成");
             }
             keywordList = HanLP.extractKeyword(document, keywordSize);
         }
@@ -145,5 +145,11 @@ public class TopicServiceImpl implements TopicService {
     public void updateTopicStatus(Integer topicId, int status) {
         int result = topicMapper.updateTopicStatus(topicId, status);
         logger.info("更新帖子状态完成，topicId：{}, newStatus:{}, 影响行数:{}", topicId, status, result);
+    }
+
+    @Override
+    public ForumTopic queryTopic(Integer topicId) {
+        return topicMapper.selectOneByQuery(new QueryWrapper()
+                .where(FORUM_TOPIC.ID.eq(topicId).and(FORUM_TOPIC.STATUS.eq(1))));
     }
 }

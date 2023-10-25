@@ -1,7 +1,6 @@
 package com.zeroxn.bbs.task.listener;
 
 import com.zeroxn.bbs.base.entity.ForumTopic;
-import com.zeroxn.bbs.task.filter.ContentSecurityReview;
 import com.zeroxn.bbs.task.service.ReviewTaskService;
 import com.zeroxn.bbs.task.service.TopicService;
 import com.zeroxn.bbs.task.service.impl.TopicReviewService;
@@ -10,10 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -70,15 +67,15 @@ public class BbsTopicListener {
                     topicService.updateTopicStatus(topic.getId(), 0);
                 }
                 logger.info("帖子审核没有调用异常，删除异常任务数据");
-                taskService.deleteReviewTask(topic.getId());
+                taskService.deleteReviewTaskByTopicId(topic.getId());
             } catch (Exception e) {
-                logger.error("");
+                logger.error("执行帖子审查失败，错误信息：{}", e.getMessage());
             }
         });
         try {
             CompletableFuture.allOf(makeContentKeyFuture, reviewFuture).get();
         }catch (Exception e) {
-            logger.info("支持生成关键字或帖子审核任务异常，错误信息：{}", e.getMessage());
+            logger.info("运行生成关键字或帖子审核任务异常，错误信息：{}", e.getMessage());
         }
     }
 }
