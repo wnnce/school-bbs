@@ -129,9 +129,9 @@ public class QiniuAutoConfiguration {
 
 项目启动成功后，监听端口为`8040`，访问[http://localhost:8040/swagger-ui/index.html](http://localhost:8040/swagger-ui/index.html)即可查看内容模块的接口文档。
 
-前端访问后端接口时需要先使用微信登录的临时`Code`调用后端登录接口拿到访问`Token`，而后将`Token`放到请求头的`Authorization`字段（具体格式为`Authorization: Bearer {Token}`），再请求后端接口。如果未携带有效`Token`信息或者`Token`无效，后端直接返回`401`错误，无mo kuai报错信息。
+前端访问后端接口时需要先使用微信登录的临时`Code`调用后端登录接口拿到访问`Token`，而后将`Token`放到请求头的`Authorization`字段（具体格式为`Authorization: Bearer {Token}`），再请求后端接口。如果未携带有效`Token`信息或者`Token`无效，后端直接返回`401`错误，无报错信息。
 
-后端的返回错误码有5种：
+后端的返回响应码有5种：
 
 - 200：请求成功
 - 401：无权限或未认证
@@ -247,9 +247,11 @@ baidu:
 >
 > 任务模块接受到消息生成帖子关键字和审核帖子使用多线程并行执行。审核帖子时，审核文本、图像、视频也使用异步任务并行执行，形成异步任务链。由于审核任务调用时间较久，当有大量帖子或话题发布时可能存在消息积压。
 >
-> 如果在审核过程中某个接口调用错误会将此次审核写入到审核异常记录表，有审核异常处理定时任务进行重试，尽量减少接口调用失败对帖子审核的影响
+> 如果在审核过程中某个接口调用错误会将此次审核写入到审核异常记录表，由审核异常处理定时任务进行重试，尽量减少接口调用失败对帖子审核的影响
 
 ## 打包部署
+
+**在进行部署前需要先部署好所依赖的环境**
 
 打包部署的方式推荐使用`Docker`，任务模块和内容模块分别使用`Maven`进行打包，得到`jar`包。然后可以使用下面示例的镜像编译文件和`docker-compose.yml`文件进行部署
 
@@ -266,7 +268,6 @@ ENTRYPOINT ["java","-jar","-Xmx256m","-Xms256m","-XX:+UseZGC","-XX:MaxGCPauseMil
 任务模块的镜像编译文件
 
 ```dockerfile
-bbs@school-bbs:~/school-bbs/applet/server$ cat ../task/Dockerfile 
 FROM debian-jre:17
 ADD *.jar app.jar
 ENTRYPOINT ["java","-jar","-Xmx256m","-Xms256m","-XX:+UseZGC","-XX:MaxGCPauseMillis=200","app.jar","--spring.profiles.active=test"]
