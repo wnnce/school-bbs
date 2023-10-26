@@ -122,22 +122,23 @@ alter table bbs_file_upload
 
 create table bbs_forum_topic
 (
-    id          serial
+    id               serial
         primary key,
-    title       varchar(255) not null,
-    content     text         not null,
-    content_key text,
-    image_urls  varchar(300)[],
-    video_url   varchar(300),
-    type        integer      not null,
-    flag        integer,
-    label_ids   integer[],
-    is_hot      boolean default false,
-    view_count  integer default 0,
-    star_count  integer default 0,
-    create_time timestamp    not null,
-    user_id     bigint       not null,
-    status      integer default 0
+    title            varchar(255) not null,
+    content          text         not null,
+    content_key      text,
+    image_urls       varchar(300)[],
+    video_url        varchar(300),
+    type             integer      not null,
+    flag             integer,
+    label_ids        integer[],
+    is_hot           boolean default false,
+    view_count       integer default 0,
+    star_count       integer default 0,
+    create_time      timestamp    not null,
+    user_id          bigint       not null,
+    status           integer default 1,
+    last_update_time timestamp
 );
 
 comment on table bbs_forum_topic is '论坛帖子/话题信息表';
@@ -170,7 +171,9 @@ comment on column bbs_forum_topic.create_time is '创建时间';
 
 comment on column bbs_forum_topic.user_id is '用户ID';
 
-comment on column bbs_forum_topic.status is '状态 0：正常 1：二手交易已售出 2：已删除';
+comment on column bbs_forum_topic.status is '状态 0：正常 1：待审核 2：审核未通过 3：已删除';
+
+comment on column bbs_forum_topic.last_update_time is '帖子/话题的最后更新时间（包括审核状态更新，帖子被删除等）';
 
 alter table bbs_forum_topic
     owner to postgres;
@@ -226,37 +229,6 @@ comment on column bbs_public_message.del_user_ids is '删除该消息的用户';
 comment on column bbs_public_message.status is '状态 0：正常 1：删除';
 
 alter table bbs_public_message
-    owner to postgres;
-
-create table bbs_user_message
-(
-    id        serial
-        primary key,
-    user_id   bigint  not null,
-    content   text    not null,
-    type      integer not null,
-    source_id bigint,
-    is_read   boolean default false,
-    status    integer default 0
-);
-
-comment on table bbs_user_message is '用户消息表';
-
-comment on column bbs_user_message.id is 'ID 主键 自增';
-
-comment on column bbs_user_message.user_id is '消息需要送达的UserId';
-
-comment on column bbs_user_message.content is '消息内容';
-
-comment on column bbs_user_message.type is '消息类型 0：话题/帖子回复消息 1：评论回复消息';
-
-comment on column bbs_user_message.source_id is '点击消息需要跳转的内容ID';
-
-comment on column bbs_user_message.is_read is '消息用户是否已读';
-
-comment on column bbs_user_message.status is '状态 0：正常 1：删除';
-
-alter table bbs_user_message
     owner to postgres;
 
 create table bbs_user_extras
@@ -408,4 +380,73 @@ comment on column bbs_comment.user_id is '发送评论的用户ID';
 comment on column bbs_comment.status is '状态 0：正常 1：删除';
 
 alter table bbs_comment
+    owner to postgres;
+
+create table bbs_user_message
+(
+    id         serial
+        primary key,
+    user_id    bigint    not null,
+    content    text      not null,
+    send_time  timestamp not null,
+    type       integer   not null,
+    topic_id   integer,
+    comment_id bigint,
+    is_read    boolean default false,
+    status     integer default 0
+);
+
+comment on table bbs_user_message is '用户消息表';
+
+comment on column bbs_user_message.id is 'ID 主键 自增';
+
+comment on column bbs_user_message.user_id is '消息需要送达的UserId';
+
+comment on column bbs_user_message.content is '消息内容';
+
+comment on column bbs_user_message.send_time is '消息的发送时间';
+
+comment on column bbs_user_message.type is '消息类型 0：话题/帖子回复消息 1：评论回复消息';
+
+comment on column bbs_user_message.topic_id is '消息对应的帖子/话题ID';
+
+comment on column bbs_user_message.comment_id is '消息对应的评论ID, 如果是话题/帖子回复消息则为空';
+
+comment on column bbs_user_message.is_read is '消息用户是否已读';
+
+comment on column bbs_user_message.status is '状态 0：正常 1：删除';
+
+alter table bbs_user_message
+    owner to postgres;
+
+create table bbs_review_task
+(
+    id           serial
+        primary key,
+    topic_id     integer           not null,
+    create_time  timestamp         not null,
+    stage1       boolean,
+    stage2       boolean,
+    stage3       boolean,
+    execute_time timestamp         not null,
+    retry_count  integer default 0 not null
+);
+
+comment on table bbs_review_task is '帖子/话题审查任务表，如果在帖子/话题审查阶段出现报错或者审查失败则写入任务表，后台定时通过自动任务重试';
+
+comment on column bbs_review_task.topic_id is '帖子/话题Id';
+
+comment on column bbs_review_task.create_time is '任务的创建时间';
+
+comment on column bbs_review_task.stage1 is '一阶段任务，帖子的文本审查 通过：true 不通过：false 调用失败：null';
+
+comment on column bbs_review_task.stage2 is '二阶段任务，帖子的图片审查';
+
+comment on column bbs_review_task.stage3 is '三阶段任务，帖子的视频审查';
+
+comment on column bbs_review_task.execute_time is '当前任务的最后一次执行时间';
+
+comment on column bbs_review_task.retry_count is '当前任务的重试次数';
+
+alter table bbs_review_task
     owner to postgres;
