@@ -2,9 +2,9 @@ package com.zeroxn.bbs.web.controller;
 
 import com.mybatisflex.core.paginate.Page;
 import com.zeroxn.bbs.base.entity.ForumTopic;
-import com.zeroxn.bbs.core.utils.BbsUtils;
-import com.zeroxn.bbs.base.validation.ValidationGroups.SaveTopicValidation;
 import com.zeroxn.bbs.base.validation.ValidationGroups.SavePostValidation;
+import com.zeroxn.bbs.base.validation.ValidationGroups.SaveTopicValidation;
+import com.zeroxn.bbs.core.utils.BbsUtils;
 import com.zeroxn.bbs.web.dto.*;
 import com.zeroxn.bbs.web.service.ContentService;
 import io.swagger.v3.oas.annotations.Operation;

@@ -4,9 +4,6 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 import com.zeroxn.bbs.base.mybatis.handlers.ArrayTypeHandler;
 import com.zeroxn.bbs.base.validation.ValidationGroups.SavePostValidation;
 import com.zeroxn.bbs.base.validation.ValidationGroups.SaveTopicValidation;
@@ -21,6 +18,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.ibatis.type.JdbcType;
 import org.hibernate.validator.constraints.Length;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 论坛帖子/话题信息表 实体类。

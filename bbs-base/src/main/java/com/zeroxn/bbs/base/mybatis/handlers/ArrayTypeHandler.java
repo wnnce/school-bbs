@@ -1,6 +1,8 @@
 package com.zeroxn.bbs.base.mybatis.handlers;
 
-import org.apache.ibatis.type.*;
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.TypeException;
 
 import java.sql.*;
 

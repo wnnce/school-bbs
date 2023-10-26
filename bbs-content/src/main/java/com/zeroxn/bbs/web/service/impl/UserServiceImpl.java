@@ -2,11 +2,11 @@ package com.zeroxn.bbs.web.service.impl;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.util.UpdateEntity;
+import com.zeroxn.bbs.base.entity.Student;
+import com.zeroxn.bbs.base.entity.User;
 import com.zeroxn.bbs.core.common.JwtService;
 import com.zeroxn.bbs.core.common.StudentAuthService;
 import com.zeroxn.bbs.core.common.WechatService;
-import com.zeroxn.bbs.base.entity.Student;
-import com.zeroxn.bbs.base.entity.User;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import com.zeroxn.bbs.web.dto.UpdateUserDto;
 import com.zeroxn.bbs.web.mapper.StudentMapper;
@@ -22,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Set;
 
-import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
 import static com.zeroxn.bbs.base.entity.table.StudentTableDef.STUDENT;
+import static com.zeroxn.bbs.base.entity.table.UserTableDef.USER;
 
 /**
  * @Author: lisang

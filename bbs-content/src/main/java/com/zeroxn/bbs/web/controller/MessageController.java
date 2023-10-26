@@ -1,7 +1,6 @@
 package com.zeroxn.bbs.web.controller;
 
 import com.mybatisflex.core.paginate.Page;
-import com.zeroxn.bbs.base.entity.PublicMessage;
 import com.zeroxn.bbs.base.entity.UserMessage;
 import com.zeroxn.bbs.core.utils.BbsUtils;
 import com.zeroxn.bbs.web.dto.PageQueryDto;

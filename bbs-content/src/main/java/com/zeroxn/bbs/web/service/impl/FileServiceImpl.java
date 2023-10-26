@@ -8,7 +8,6 @@ import com.zeroxn.bbs.core.common.QiniuBucketService;
 import com.zeroxn.bbs.core.config.qiniu.QiniuProperties;
 import com.zeroxn.bbs.core.exception.CustomException;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
-import com.zeroxn.bbs.web.mapper.FileUploadMapper;
 import com.zeroxn.bbs.web.service.FileService;
 import com.zeroxn.bbs.web.service.async.GlobalAsyncTask;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 

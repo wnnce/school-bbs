@@ -4,18 +4,15 @@ import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
 import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
-import java.io.Serializable;
-import java.sql.Array;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.zeroxn.bbs.base.mybatis.handlers.ArrayTypeHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.ibatis.type.JdbcType;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 用户额外信息表 实体类。

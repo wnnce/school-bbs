@@ -2,7 +2,6 @@ package com.zeroxn.bbs.task.service;
 
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.task.dao.TopicDao;
-import scala.Int;
 import tech.powerjob.worker.log.OmsLogger;
 
 import java.util.List;

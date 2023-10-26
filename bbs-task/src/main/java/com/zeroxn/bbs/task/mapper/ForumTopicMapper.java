@@ -3,7 +3,6 @@ package com.zeroxn.bbs.task.mapper;
 import com.mybatisflex.core.BaseMapper;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import org.apache.ibatis.annotations.Param;
-import scala.Int;
 
 /**
  * @Author: lisang

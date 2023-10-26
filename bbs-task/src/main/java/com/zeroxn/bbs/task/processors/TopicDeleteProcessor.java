@@ -3,7 +3,6 @@ package com.zeroxn.bbs.task.processors;
 import com.zeroxn.bbs.task.dao.TopicDao;
 import com.zeroxn.bbs.task.service.TopicService;
 import org.springframework.stereotype.Component;
-import scala.Int;
 import tech.powerjob.worker.core.processor.ProcessResult;
 import tech.powerjob.worker.core.processor.TaskContext;
 import tech.powerjob.worker.core.processor.sdk.BasicProcessor;

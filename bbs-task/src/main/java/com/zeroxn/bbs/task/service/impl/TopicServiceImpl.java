@@ -4,7 +4,6 @@ import com.hankcs.hanlp.HanLP;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.update.UpdateChain;
-import com.mybatisflex.core.util.UpdateEntity;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.task.analytics.TextAnalytics;
 import com.zeroxn.bbs.task.dao.TopicDao;
@@ -21,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.powerjob.worker.log.OmsLogger;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.mybatisflex.core.query.QueryMethods.count;
