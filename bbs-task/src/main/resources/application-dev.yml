@@ -10,8 +10,6 @@ spring:
     virtual-host: /
     username: root
     password: admin
-
-
 powerjob:
   worker:
     app-name: bbs-task

@@ -24,6 +24,17 @@ public class TopicDeleteProcessor implements BasicProcessor {
     public TopicDeleteProcessor(TopicService topicService) {
         this.topicService = topicService;
     }
+
+    /**
+     * 话题定时清理定时任务方法
+     * 话题清理的逻辑为：先计算出话题发布至今的小时数以及最后一条评论距今的小时数，
+     * 然后用话题的查看次数、收藏数和评论数除以发布至今的小时数（查看次数权重过大，取一半）
+     * 然后用话题最后一条评论距今的小时数乘 -0.1 ,发布越早影响的权重就越大。
+     * 最后用 查看次数权重 + 收藏数权重 + 评论数权重 + 最后一条评论权重 得到话题最终的删除指数，如果该指数小于2.5则将话题删除
+     * @param taskContext 任务平台上下文
+     * @return 返回方法调用的执行结果
+     * @throws Exception 异常
+     */
     @Override
     public ProcessResult process(TaskContext taskContext) throws Exception {
         OmsLogger logger = taskContext.getOmsLogger();

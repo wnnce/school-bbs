@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-23 17:57:24
- * @Description:
+ * @Description: 基于百度智能云的内容安全审查实现类
  */
 public class BaiduContentSecurityReview implements ContentSecurityReview {
     private static final Logger logger = LoggerFactory.getLogger(BaiduContentSecurityReview.class);

@@ -31,6 +31,16 @@ public class BbsTopicListener {
         this.taskService = taskService;
         this.reviewService = reviewService;
     }
+
+    /**
+     * 监听消息队列，接受到帖子消息后，启动两条异步线程分别执行帖子关键字生成和帖子审核的逻辑
+     * 帖子关键字生成调用讯飞接口，生成完完毕后更新写入到数据库
+     * 帖子审核使用百度接口，审核前先往审核任务表中写入当前帖子/话题的信息再开始审核，审核使用多线程对文本、图片、视频进行并行审核。
+     * 当其中某一个接口调用失败返回null时，程序判断请求失败 更新审核任务表中各阶段字段的值，并不对帖子的状态进行修改 由定时任务再次重新审核
+     * 如果某一项内容返回为false,那么证明帖子内包含有敏感内容，更新帖子状态为审核未通过，同时删除审核任务表的数据
+     * 如果接口全部返回true,证明帖子可以正常发布，更新帖子状态为正常，删除审核任务表中的数据
+     * @param topic 发布的帖子/话题对象
+     */
     @RabbitListener(queues = "bbs.topic")
     public void listenerBbsTopicQueue(ForumTopic topic) {
         CompletableFuture<Void> makeContentKeyFuture = CompletableFuture.runAsync(() -> {

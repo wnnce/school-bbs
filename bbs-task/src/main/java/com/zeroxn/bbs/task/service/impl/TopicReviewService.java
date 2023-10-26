@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-25 13:14:00
- * @Description:
+ * @Description: 帖子审核服务层
  */
 @Service
 public class TopicReviewService {
@@ -22,6 +22,11 @@ public class TopicReviewService {
         this.securityReview = securityReview;
     }
 
+    /**
+     * 异步审核审核字符串文本
+     * @param text 待审核的文本字符串
+     * @return 返回经过Optional包装的异步对象
+     */
     public CompletableFuture<Optional<Boolean>> asyncReviewTopicText(String text) {
         return CompletableFuture.supplyAsync(() -> {
             Boolean result = securityReview.filterText(text);

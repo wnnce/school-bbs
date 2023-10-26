@@ -10,13 +10,20 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-25 17:42:38
- * @Description:
+ * @Description: 责任链中的图像审核器
  */
 public class ImageReviewHandler extends ReviewHandler{
     public ImageReviewHandler(TopicReviewService reviewService) {
         super(reviewService);
     }
 
+    /**
+     * 提供图像内容的审核
+     * @param result 上一次的请求结果
+     * @param stage 审核什么内容 1：文本 2：图像 3：视频
+     * @param topic 需要审核的帖子/话题对象
+     * @param logger 在线Logger
+     */
     @Override
     public Boolean execute(Boolean result, int stage, ForumTopic topic, OmsLogger logger) {
         if (stage == 2) {

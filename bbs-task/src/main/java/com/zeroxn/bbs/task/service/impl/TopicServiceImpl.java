@@ -54,6 +54,11 @@ public class TopicServiceImpl implements TopicService {
         this.extrasMapper = extrasMapper;
         this.proposeMapper = proposeMapper;
     }
+
+    /**
+     * 生成关键字先使用讯飞接口生成，如果讯飞接口调用失败再使用本地库
+     * @param topic 待生成关键字的话题
+     */
     @Override
     public void handlerTopicKeyword(ForumTopic topic) {
         String document = topic.getTitle() + topic.getContent();
@@ -92,6 +97,7 @@ public class TopicServiceImpl implements TopicService {
                 .from(FORUM_TOPIC)
                 .leftJoin(COMMENT).on(COMMENT.TOPIC_ID.eq(FORUM_TOPIC.ID))
                 .where(FORUM_TOPIC.TYPE.eq(1))
+                .and(FORUM_TOPIC.STATUS.eq(0))
                 .groupBy(FORUM_TOPIC.ID)
                 .listAs(TopicDao.class);
     }
@@ -119,6 +125,7 @@ public class TopicServiceImpl implements TopicService {
                 .from(FORUM_TOPIC)
                 .leftJoin(COMMENT).on(COMMENT.TOPIC_ID.eq(FORUM_TOPIC.ID))
                 .where(FORUM_TOPIC.TYPE.eq(1))
+                .and(FORUM_TOPIC.STATUS.eq(0))
                 .and(FORUM_TOPIC.IS_HOT.eq(false))
                 .and("create_time < current_timestamp - interval '1 day'")
                 .groupBy(FORUM_TOPIC.ID)

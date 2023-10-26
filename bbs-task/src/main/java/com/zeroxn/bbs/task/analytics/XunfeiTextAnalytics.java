@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-19 11:01:28
- * @Description:
+ * @Description: 基于讯飞平台的文本关键字提取
  */
 public class XunfeiTextAnalytics implements TextAnalytics{
     private static final Logger logger = LoggerFactory.getLogger(XunfeiTextAnalytics.class);
@@ -33,6 +33,13 @@ public class XunfeiTextAnalytics implements TextAnalytics{
         this.client = client;
         this.objectMapper = objectMapper;
     }
+
+    /**
+     * 提取字符串中的关键字
+     * @param text 需要提取关键字的字符串
+     * @param size 提取的关键字个数
+     * @return 返回提取出的关键字
+     */
     @Override
     public List<String> keywordsExtraction(String text, int size) {
         RequestBody requestBody = new FormBody.Builder()

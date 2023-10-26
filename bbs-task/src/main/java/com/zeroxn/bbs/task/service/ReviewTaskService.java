@@ -1,14 +1,13 @@
 package com.zeroxn.bbs.task.service;
 
 import com.zeroxn.bbs.base.entity.ReviewTask;
-import scala.Int;
 
 import java.util.List;
 
 /**
  * @Author: lisang
  * @DateTime: 2023-10-25 12:41:32
- * @Description:
+ * @Description: 审核任务记录服务层
  */
 public interface ReviewTaskService {
     void addReviewTask(Integer topicId);

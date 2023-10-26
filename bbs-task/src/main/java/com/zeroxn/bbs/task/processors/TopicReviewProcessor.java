@@ -5,7 +5,6 @@ import com.zeroxn.bbs.base.entity.ReviewTask;
 import com.zeroxn.bbs.task.handler.review.ReviewHandler;
 import com.zeroxn.bbs.task.service.ReviewTaskService;
 import com.zeroxn.bbs.task.service.TopicService;
-import com.zeroxn.bbs.task.service.impl.TopicReviewService;
 import org.springframework.stereotype.Component;
 import tech.powerjob.worker.core.processor.ProcessResult;
 import tech.powerjob.worker.core.processor.TaskContext;
@@ -29,6 +28,16 @@ public class TopicReviewProcessor implements BasicProcessor {
         this.topicService = topicService;
         this.reviewHandler = reviewHandler;
     }
+
+    /**
+     * 处理帖子审核异常的任务方法
+     * 查询审核异常任务表所有重试次数小于等于3的记录，判断任务是否包含失败项，如果包含则更新帖子为审核不通过状态，删除当前记录
+     * 如果不包含失败项，通过帖子Id查询该帖子是否已被删除，如果被删除也删除当前记录
+     * 所有条件都通过时，调用责任链执行各阶段任务，执行完成后的处理逻辑和审核帖子一致
+     * @param taskContext 任务平台上下文
+     * @return 返回方法的运行结果
+     * @throws Exception 异常
+     */
     @Override
     public ProcessResult process(TaskContext taskContext) throws Exception {
         OmsLogger logger = taskContext.getOmsLogger();

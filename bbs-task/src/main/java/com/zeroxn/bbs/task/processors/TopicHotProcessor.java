@@ -31,6 +31,18 @@ public class TopicHotProcessor implements BasicProcessor {
         this.topicService = topicService;
         this.objectMapper = objectMapper;
     }
+
+    /**
+     * 生成热门话题的定时任务，供任务平台调用
+     * 热门话题的生成逻辑为：先获取所有状态为正常的话题，再使用流处理对每一个话题进行处理
+     * 先拿到话题发布距今的小时数和针对该话题最后一条评论距今的小时数，在将话题的查看次数、收藏次数、评论次数、发布距今小时数、
+     * 最后一条评论距今小时数进行归一化处理 (查看次数最大值：100000,收藏次数最大值：10000,评论数、发布小时数、评论小时数：最大值1000)
+     * 归一化处理完成后查看次数、收藏次数、评论次数乘对应的权重计算出分数，发布小时数，评论小时数同理
+     * 最后相加所有计算得到的分数得到话题的最终热度，按照热度进行倒叙排序取对应的前N作为热门话题
+     * @param taskContext 任务平台上下文
+     * @return 返回方法的执行结果
+     * @throws Exception 异常
+     */
     @Override
     public ProcessResult process(TaskContext taskContext) throws Exception {
         TaskParam param = objectMapper.readValue(taskContext.getJobParams(), TaskParam.class);

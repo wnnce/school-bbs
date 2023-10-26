@@ -20,9 +20,21 @@ import java.util.List;
  */
 public class BaiduService {
     private static final Logger logger = LoggerFactory.getLogger(BaiduService.class);
+    /**
+     * 获取AccessToken的网址
+     */
     private static final String AUTH_URL = "https://aip.baidubce.com/oauth/2.0/token";
+    /**
+     * 文本审核地址
+     */
     private static final String TEXT_URL = "https://aip.baidubce.com/rest/2.0/solution/v1/text_censor/v2/user_defined";
+    /**
+     * 图像审核地址
+     */
     private static final String IMAGE_URL = "https://aip.baidubce.com/rest/2.0/solution/v1/img_censor/v2/user_defined";
+    /**
+     * 视频审核地址
+     */
     private static final String VIDEO_URL = "https://aip.baidubce.com/rest/2.0/solution/v1/video_censor/v2/user_defined";
     private final BaiduProperties properties;
     private final CacheService cacheService;
@@ -35,6 +47,11 @@ public class BaiduService {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 文本内容审查 直接返回封装后的百度接口返回参数
+     * @param text 需要审查的字符串
+     * @return 返回封装后请求返回参数
+     */
     public ReviewResult textReview(String text) {
         String accessToken = makeAccessToken();
         if (accessToken == null) {
@@ -54,6 +71,11 @@ public class BaiduService {
         return this.sendRequest(request, ReviewResult.class);
     }
 
+    /**
+     * 图像内容审查 返回响应参数封装的JsonNode对象
+     * @param imageUrl 需要审查的图像地址
+     * @return 返回封装响应参数的JsonNode
+     */
     public JsonNode imageReview(String imageUrl) {
         String accessToken = makeAccessToken();
         if (accessToken == null) {
@@ -76,6 +98,13 @@ public class BaiduService {
         return this.sendRequest(request, JsonNode.class);
     }
 
+    /**
+     * 视频内容审查
+     * @param taskId 本次审查任务的Id
+     * @param videoName 审查视频的名称
+     * @param videoUrl 视频的地址链接
+     * @return 返回封装为JsonNode 的响应参数
+     */
     public JsonNode videoReview(String taskId, String videoName, String videoUrl) {
         String accessToken = makeAccessToken();
         if (accessToken == null) {
@@ -98,6 +127,11 @@ public class BaiduService {
         return this.sendRequest(request, JsonNode.class);
     }
 
+    /**
+     * 私有参数 获取百度平台的AccessToken，会先尝试从缓存中获取Token，如果缓存中不存在再从百度接口获取，
+     * Token有效期30天成功获取后需添加到缓存
+     * @return 返回获取到的Token
+     */
     private String makeAccessToken() {
         String accessToken = cacheService.getCache("baidu_access_token", String.class);
         if (accessToken == null) {
@@ -121,6 +155,13 @@ public class BaiduService {
         return accessToken;
     }
 
+    /**
+     * 私有方法 统一client请求方法，同时提供响应参数的反序列化封装
+     * @param request 需要发送的请求
+     * @param clazz 需要反序列化成成的类
+     * @return 返回反序列化后的对象或空
+     * @param <T> 泛型
+     */
     public <T> T sendRequest(Request request, Class<T> clazz) {
         try {
             Response response = client.newCall(request).execute();

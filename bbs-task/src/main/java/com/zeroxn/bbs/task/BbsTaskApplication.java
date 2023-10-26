@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-18 20:22:55
- * @Description:
+ * @Description: 校园论坛任务模块启动类
  */
 @SpringBootApplication
 @MapperScan("com.zeroxn.bbs.task.mapper")

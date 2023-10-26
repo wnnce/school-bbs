@@ -14,7 +14,7 @@ import java.time.Duration;
 /**
  * @Author: lisang
  * @DateTime: 2023-10-23 13:43:04
- * @Description:
+ * @Description: 基于百度智能云的内容安全审核配置类
  */
 public class BaiduConfigurations {
     static class ClientConfiguration {
