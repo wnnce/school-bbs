@@ -10,14 +10,11 @@ spring:
     virtual-host: /
     username: root
     password: admin
-
 wechat:
   appid: wxb4a5026fc9990e21
   secret: 9d68af054cf1f3ecb29c23398a9a06e7
-
 trie:
   path: /home/lisang/Documents/words_lines.txt
-
 jwt:
   expire-hours: 48
   audience: school_bbs
@@ -25,7 +22,6 @@ jwt:
   random-key: false
   public-key-path: classpath:certs/public.pem
   private-key-path: classpath:certs/private.pem
-
 qiniu:
   access-key: '7ljXDMVJ50r9QHHvqqLT191IWDn8qy3bU3gCwMdY'
   secret-key: 'CymD_ID_-__AiYbnHbUkIMe1FTFXCnfC52NVEZG2'
