@@ -212,9 +212,9 @@ public class ContentServiceImpl implements ContentService {
     public void deleteTopic(Integer topicId, Long userId) {
         ForumTopic findTopic = topicMapper.selectOneByQuery(new QueryWrapper()
                 .select(FORUM_TOPIC.ID, FORUM_TOPIC.USER_ID, FORUM_TOPIC.STATUS)
-                .where(FORUM_TOPIC.ID.eq(topicId)));
+                .where(FORUM_TOPIC.ID.eq(topicId)).and(FORUM_TOPIC.STATUS.ne(3)));
         ExceptionUtils.isConditionThrowRequest(findTopic == null, "需要删除的内容不存在");
-        ExceptionUtils.isConditionThrowRequest(findTopic.getUserId() != userId, "该用户无删除权限");
+        ExceptionUtils.isConditionThrowRequest(!findTopic.getUserId().equals(userId), "该用户无删除权限");
         int deleteResult = topicMapper.deleteTopic(topicId);
         if (deleteResult <= 0) {
             logger.info("删除帖子/话题失败，帖子/话题不存在");
