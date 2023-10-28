@@ -17,7 +17,7 @@ xunfei:
     api-key: '919495c6d603fd43d9724e94d6056a4c'
     type: 'dependent'
 analysis:
-  size: 6
+  size: 4
 powerjob:
   worker:
     app-name: bbs-task
