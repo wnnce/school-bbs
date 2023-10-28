@@ -33,13 +33,14 @@ public class GlobalAsyncTask {
     private final FileUploadMapper uploadMapper;
     private final UserExtrasMapper extrasMapper;
     private final UserProfileMapper profileMapper;
+    private final UserFriendsMapper friendsMapper;
     private final UserMapper userMapper;
     private final ForumTopicMapper topicMapper;
     private final CommentMapper commentMapper;
 
     public GlobalAsyncTask(FileUploadMapper uploadMapper, UserExtrasMapper extrasMapper, UserProfileMapper profileMapper,
                            ForumTopicMapper topicMapper, UserMapper userMapper, MessageService messageService,
-                           CommentMapper commentMapper) {
+                           CommentMapper commentMapper, UserFriendsMapper friendsMapper) {
         this.messageService = messageService;
         this.uploadMapper = uploadMapper;
         this.extrasMapper = extrasMapper;
@@ -47,6 +48,7 @@ public class GlobalAsyncTask {
         this.topicMapper = topicMapper;
         this.userMapper = userMapper;
         this.commentMapper = commentMapper;
+        this.friendsMapper = friendsMapper;
     }
 
     /**
@@ -78,6 +80,15 @@ public class GlobalAsyncTask {
             int result = profileMapper.insertSelective(profile);
             logger.info("用户画像表新增用户记录，添加结果:{}", result);
         });
+        // 初始化用户好友表
+        this.executeVoidAsyncFunction(() -> {
+            UserFriends friends = UserFriends.builder()
+                    .userId(userId)
+                    .build();
+            int result = friendsMapper.insertSelective(friends);
+            logger.info("用户好友表新增用户记录，添加结果：{}", result);
+        });
+
     }
 
     /**
