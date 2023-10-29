@@ -1,5 +1,6 @@
 package com.zeroxn.bbs.task.listener;
 
+import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.task.service.ReviewTaskService;
 import com.zeroxn.bbs.task.service.TopicService;
@@ -41,7 +42,7 @@ public class BbsTopicListener {
      * 如果接口全部返回true,证明帖子可以正常发布，更新帖子状态为正常，删除审核任务表中的数据
      * @param topic 发布的帖子/话题对象
      */
-    @RabbitListener(queues = "bbs.topic")
+    @RabbitListener(queues = QueueConstant.TOPIC_QUEUE)
     public void listenerBbsTopicQueue(ForumTopic topic) {
         CompletableFuture<Void> makeContentKeyFuture = CompletableFuture.runAsync(() -> {
             logger.info("接收到消息，开始生成关键字。topicId:{}，创建时间：{}", topic.getId(), topic.getCreateTime());
@@ -52,8 +53,8 @@ public class BbsTopicListener {
             CompletableFuture<Optional<Boolean>> textResultFuture = reviewService.asyncReviewTopicText(topic.getTitle() + "," + topic.getContent());
             CompletableFuture<Optional<Boolean>> videoResultFuture = reviewService.asyncReviewTopicVideo(topic.getVideoUrl());
             CompletableFuture<Optional<Boolean>> imageResultFuture = reviewService.asyncReviewTopicImage(topic.getImageUrls());
+            CompletableFuture.allOf(textResultFuture, videoResultFuture, imageResultFuture).join();
             try {
-                CompletableFuture.allOf(textResultFuture, videoResultFuture, imageResultFuture).get();
                 Boolean textResult = null, videoResult = null, imageResult = null;
                 if (textResultFuture.get().isPresent()) {
                     textResult = textResultFuture.get().get();
@@ -75,6 +76,10 @@ public class BbsTopicListener {
                 } else {
                     logger.info("帖子审核通过，允许发布");
                     topicService.updateTopicStatus(topic.getId(), 0);
+                    if (topic.getType() == 1) {
+                        // 添加到redis的关键字话题Id列表缓存
+                        topicService.addTopicToRedisIdList(topic.getId());
+                    }
                 }
                 logger.info("帖子审核没有调用异常，删除异常任务数据");
                 taskService.deleteReviewTaskByTopicId(topic.getId());
@@ -82,10 +87,6 @@ public class BbsTopicListener {
                 logger.error("执行帖子审查失败，错误信息：{}", e.getMessage());
             }
         });
-        try {
-            CompletableFuture.allOf(makeContentKeyFuture, reviewFuture).get();
-        }catch (Exception e) {
-            logger.info("运行生成关键字或帖子审核任务异常，错误信息：{}", e.getMessage());
-        }
+        CompletableFuture.allOf(makeContentKeyFuture, reviewFuture).join();
     }
 }

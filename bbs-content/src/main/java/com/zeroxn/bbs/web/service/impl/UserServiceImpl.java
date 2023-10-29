@@ -60,9 +60,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String login(String code) {
-        String openId = wechatService.getOpenId(code);
-        ExceptionUtils.isConditionThrowServer(openId == null, "登录失败，获取OpenId失败");
-        User findUser = userMapper.selectOneByQuery(new QueryWrapper().where(USER.OPENID.eq(openId)));
+//        String openId = wechatService.getOpenId(code);
+//        ExceptionUtils.isConditionThrowServer(openId == null, "登录失败，获取OpenId失败");
+        User findUser = userMapper.selectOneByQuery(new QueryWrapper().where(USER.OPENID.eq(code)));
         if (findUser != null) {
             if (findUser.getUserAuth() == 1) {
                 logger.warn("用户被禁用，禁止登陆，userId：{}", findUser.getId());
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
             }
             return jwtService.generateToken(findUser.getId().toString(), findUser.getOpenid(), userScope);
         }
-        User user = User.builder().openid(openId).build();
+        User user = User.builder().openid(code).build();
         int result = userMapper.insertSelective(user);
         if (result <= 0) {
             logger.error("保存用户失败");

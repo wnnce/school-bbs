@@ -52,4 +52,9 @@ public class ProposeTopic implements Serializable {
      */
     private Double similarity;
 
+    public ProposeTopic(Long userId, Integer topicId, Double similarity) {
+        this.userId = userId;
+        this.topicId = topicId;
+        this.similarity = similarity;
+    }
 }

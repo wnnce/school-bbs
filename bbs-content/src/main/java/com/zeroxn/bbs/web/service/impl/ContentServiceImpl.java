@@ -6,6 +6,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.base.entity.ProposeTopic;
 import com.zeroxn.bbs.base.entity.UserExtras;
+import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
 import com.zeroxn.bbs.core.filter.SensitiveTextFilter;
 import com.zeroxn.bbs.web.dto.*;
@@ -20,7 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.Timestamp;
 import java.time.Duration;
@@ -53,10 +57,11 @@ public class ContentServiceImpl implements ContentService {
     private final GlobalAsyncTask asyncTask;
     private final SensitiveTextFilter textFilter;
     private final RabbitTemplate rabbitTemplate;
+    private final PlatformTransactionManager transactionManager;
 
     public ContentServiceImpl(ForumTopicMapper topicMapper, GlobalAsyncTask asyncTask, UserExtrasMapper extrasMapper,
                               ProposeTopicMapper proposeMapper, RabbitTemplate rabbitTemplate, CommentService commentService,
-                              SensitiveTextFilter textFilter) {
+                              SensitiveTextFilter textFilter, PlatformTransactionManager transactionManager) {
         this.topicMapper = topicMapper;
         this.asyncTask = asyncTask;
         this.extrasMapper = extrasMapper;
@@ -64,6 +69,7 @@ public class ContentServiceImpl implements ContentService {
         this.rabbitTemplate = rabbitTemplate;
         this.commentService = commentService;
         this.textFilter = textFilter;
+        this.transactionManager = transactionManager;
     }
 
     /**
@@ -92,7 +98,7 @@ public class ContentServiceImpl implements ContentService {
         post.setType(0);
         topicMapper.insertSelective(post);
         logger.info("帖子保存成功，TopicId：{}", post.getId());
-        rabbitTemplate.convertAndSend("bbs.topic", post);
+        rabbitTemplate.convertAndSend(QueueConstant.TOPIC_QUEUE, post);
         logger.info("RabbitMQ发送消息成功，TopicId:{}", post.getId());
     }
 
@@ -208,29 +214,38 @@ public class ContentServiceImpl implements ContentService {
      * @param userId 用户id
      */
     @Override
-    @Transactional
     public void deleteTopic(Integer topicId, Long userId) {
         ForumTopic findTopic = topicMapper.selectOneByQuery(new QueryWrapper()
                 .select(FORUM_TOPIC.ID, FORUM_TOPIC.USER_ID, FORUM_TOPIC.STATUS)
                 .where(FORUM_TOPIC.ID.eq(topicId)).and(FORUM_TOPIC.STATUS.ne(3)));
         ExceptionUtils.isConditionThrowRequest(findTopic == null, "需要删除的内容不存在");
         ExceptionUtils.isConditionThrowRequest(!findTopic.getUserId().equals(userId), "该用户无删除权限");
-        int deleteResult = topicMapper.deleteTopic(topicId);
-        if (deleteResult <= 0) {
-            logger.info("删除帖子/话题失败，帖子/话题不存在");
-            return;
+        // 手动控制事务 用于RabbitMQ消息发送
+        TransactionStatus delete = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        try {
+            int deleteResult = topicMapper.deleteTopic(topicId);
+            if (deleteResult <= 0) {
+                logger.info("删除帖子/话题失败，帖子/话题不存在");
+                return;
+            }
+            if (findTopic.getStatus() == 0) {
+                int result1 = extrasMapper.deleteTopicAfterUpdateUserStars(topicId);
+                logger.info("删除帖子后移除用户收藏，TopicId:{}，受影响的用户数：{}", topicId, result1);
+                int result2 = proposeMapper.deleteProposeTopicByTopicId(topicId);
+                logger.info("删除帖子后移除用户推荐，TopicId:{}，受影响的用户数：{}", topicId, result2);
+                int result3 = commentService.deleteCommentListByTopicId(topicId);
+                logger.info("删除帖子后删除帖子评论，TopicId：{}，删除的评论数：{}", topicId, result3);
+            }else {
+                logger.info("帖子状态异常，跳过其他删除逻辑。帖子状态：{}", findTopic.getStatus());
+            }
+            transactionManager.commit(delete);
+            logger.info("删除Topic成功，topicId：{}", topicId);
+            rabbitTemplate.convertAndSend(QueueConstant.DELETE_QUEUE, topicId);
+        }catch (Exception e) {
+            // 出现异常回滚事务
+            logger.error("删除帖子/话题失败，开始回滚，错误信息：{}", e.getMessage());
+            transactionManager.rollback(delete);
         }
-        if (findTopic.getStatus() == 0) {
-            int result1 = extrasMapper.deleteTopicAfterUpdateUserStars(topicId);
-            logger.info("删除帖子后移除用户收藏，TopicId:{}，受影响的用户数：{}", topicId, result1);
-            int result2 = proposeMapper.deleteProposeTopicByTopicId(topicId);
-            logger.info("删除帖子后移除用户推荐，TopicId:{}，受影响的用户数：{}", topicId, result2);
-            int result3 = commentService.deleteCommentListByTopicId(topicId);
-            logger.info("删除帖子后删除帖子评论，TopicId：{}，删除的评论数：{}", topicId, result3);
-        }else {
-            logger.info("帖子状态异常，跳过其他删除逻辑。帖子状态：{}", findTopic.getStatus());
-        }
-        logger.info("删除Topic成功，topicId：{}", topicId);
     }
 
     @Override

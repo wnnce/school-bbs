@@ -5,6 +5,7 @@ import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.update.UpdateChain;
 import com.zeroxn.bbs.base.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.ProposeTopic;
 import com.zeroxn.bbs.task.analytics.TextAnalytics;
 import com.zeroxn.bbs.task.dao.TopicDao;
 import com.zeroxn.bbs.task.mapper.CommentMapper;
@@ -16,11 +17,17 @@ import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import tech.powerjob.worker.log.OmsLogger;
 
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.mybatisflex.core.query.QueryMethods.count;
 import static com.mybatisflex.core.query.QueryMethods.max;
@@ -36,21 +43,27 @@ import static com.zeroxn.bbs.base.entity.table.ProposeTopicTableDef.PROPOSE_TOPI
 @Service
 public class TopicServiceImpl implements TopicService {
     private static final Logger logger = LoggerFactory.getLogger(TopicServiceImpl.class);
+    private static final int MAX_DELETE_BATCH = 20;
     private final TextAnalytics textAnalytics;
     private final ForumTopicMapper topicMapper;
     private final CommentMapper commentMapper;
     private final UserExtrasMapper extrasMapper;
     private final ProposeTopicMapper proposeMapper;
+    private final RedisTemplate<String, List<Integer>> redisTemplate;
+    private final PlatformTransactionManager transactionManager;
     @Value("${analysis.size}")
     private Integer keywordSize = 5;
 
     public TopicServiceImpl(TextAnalytics textAnalytics, ForumTopicMapper topicMapper, CommentMapper commentMapper,
-                            UserExtrasMapper extrasMapper, ProposeTopicMapper proposeMapper) {
+                            UserExtrasMapper extrasMapper, RedisTemplate<String, List<Integer>> redisTemplate,
+                            ProposeTopicMapper proposeMapper, PlatformTransactionManager transactionManager) {
         this.textAnalytics = textAnalytics;
         this.topicMapper = topicMapper;
         this.commentMapper = commentMapper;
         this.extrasMapper = extrasMapper;
         this.proposeMapper = proposeMapper;
+        this.redisTemplate = redisTemplate;
+        this.transactionManager = transactionManager;
     }
 
     /**
@@ -131,19 +144,32 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    @Transactional
     public boolean deleteTopicByTopicIdList(List<Integer> topicIdList, OmsLogger logger) {
-        int result1 = topicMapper.deleteBatchByIds(topicIdList);
-        logger.info("话题表删除完成，影响行数：{}", result1);
-        int result2 = commentMapper.deleteByQuery(new QueryWrapper().where(COMMENT.TOPIC_ID.in(topicIdList)));
-        logger.info("评论表删除完成，影响行数：{}", result2);
-        String topicIds = String.join(",", topicIdList.stream().map(Object::toString).toArray(String[]::new));
-        int result3 = extrasMapper.batchDeleteUserStarByTopicIdList(topicIds);
-        logger.info("用户收藏表删除完成，影响行数：{}", result3);
-        int result4 = proposeMapper.deleteByQuery(new QueryWrapper().where(PROPOSE_TOPIC.TOPIC_ID.in(topicIdList)));
-        logger.info("用户推荐表删除完成，影响行数：{}", result4);
-        logger.info("{}个话题删除成功", topicIdList.size());
-        return true;
+        TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        boolean funcResult = false;
+        try {
+            // 手动管理事务，删除redis的话题id缓存可能耗时很久，数据库操作成功就提交事务 redis的数据一致性不做要求
+            int result1 = topicMapper.deleteBatchByIds(topicIdList);
+            logger.info("话题表删除完成，影响行数：{}", result1);
+            int result2 = commentMapper.deleteByQuery(new QueryWrapper().where(COMMENT.TOPIC_ID.in(topicIdList)));
+            logger.info("评论表删除完成，影响行数：{}", result2);
+            String topicIds = String.join(",", topicIdList.stream().map(Object::toString).toArray(String[]::new));
+            int result3 = extrasMapper.batchDeleteUserStarByTopicIdList(topicIds);
+            logger.info("用户收藏表删除完成，影响行数：{}", result3);
+            int result4 = proposeMapper.deleteByQuery(new QueryWrapper().where(PROPOSE_TOPIC.TOPIC_ID.in(topicIdList)));
+            logger.info("用户推荐表删除完成，影响行数：{}", result4);
+            logger.info("{}个话题删除成功", topicIdList.size());
+            transactionManager.commit(transaction);
+            funcResult = true;
+        } catch (Exception e) {
+            logger.error("批量删除话题失败，开始回滚，错误信息：{}", e.getMessage());
+            transactionManager.rollback(transaction);
+        }
+        // 数据库事务执行成功再操作redis
+        if (funcResult) {
+            this.batchUpdateRedisIdListByTopicIdList(topicIdList);
+        }
+        return funcResult;
     }
 
     @Override
@@ -153,8 +179,128 @@ public class TopicServiceImpl implements TopicService {
     }
 
     @Override
-    public ForumTopic queryTopic(Integer topicId) {
+    public ForumTopic queryReviewTopic(Integer topicId) {
         return topicMapper.selectOneByQuery(new QueryWrapper()
                 .where(FORUM_TOPIC.ID.eq(topicId).and(FORUM_TOPIC.STATUS.eq(1))));
+    }
+
+    public void addTopicToRedisIdList(Integer topicId) {
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .select(FORUM_TOPIC.CONTENT_KEY)
+                .where(FORUM_TOPIC.ID.eq(topicId))
+                .and(FORUM_TOPIC.STATUS.eq(0))
+                .and(FORUM_TOPIC.TYPE.eq(1));
+        String contentKey = topicMapper.selectOneByQueryAs(queryWrapper, String.class);
+        if (contentKey == null || contentKey.isEmpty()) {
+            logger.warn("该ID不为话题或话题关键字为空，跳过操作，topicId：{}", topicId);
+            return;
+        }
+        String[] contentKeys = contentKey.split(",");
+        logger.info("获取话题关键字成功，关键字数量：{}", contentKeys.length);
+        List<CompletableFuture<Void>> asyncList = new ArrayList<>();
+        // 多线程处理指定关键字id列表添加id
+        Arrays.stream(contentKeys).forEach(key -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<Integer> idList = redisTemplate.opsForValue().get(key);
+                if (idList == null || idList.isEmpty()) {
+                    idList = Collections.singletonList(topicId);
+                } else {
+                    idList.add(0, topicId);
+                }
+                redisTemplate.opsForValue().set(key, idList);
+            });
+            asyncList.add(future);
+        });
+        CompletableFuture.allOf(asyncList.toArray(CompletableFuture[]::new)).join();
+        logger.info("处理关键字推荐Id列表完毕");
+    }
+
+    @Override
+    public void handlerViewTopicAfterPropose(Long userId, Integer topicId) {
+        ForumTopic findTopic = topicMapper.selectOneByQuery(new QueryWrapper()
+                .where(FORUM_TOPIC.ID.eq(topicId))
+                .and(FORUM_TOPIC.STATUS.eq(0))
+                .and(FORUM_TOPIC.TYPE.eq(1)));
+        if (findTopic == null) {
+            logger.warn("话题状态错误或者该ID不是话题ID,方法结束。topicId：{}", topicId);
+            return;
+        }
+        String contentKey = findTopic.getContentKey();
+        if (contentKey == null || contentKey.isEmpty()) {
+            logger.warn("话题关键字为空，结束方法");
+            return;
+        }
+        String[] contentKeys = contentKey.split(",");
+        // 装载推荐话题Id的线程安全List
+        List<Integer> proposeTopicIdList = Collections.synchronizedList(new ArrayList<>());
+        // 遍历关键字 通过多线程查询Redis 并发插入话题ID
+        List<CompletableFuture<Void>> asyncList = new ArrayList<>();
+        Arrays.stream(contentKeys).forEach(key -> {
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                List<Integer> idList = redisTemplate.opsForValue().get(key);
+                if (idList != null && !idList.isEmpty()) {
+                    proposeTopicIdList.add(idList.get(0));
+                }
+            });
+            asyncList.add(future);
+        });
+        // 等待所有异步线程执行完毕
+        CompletableFuture.allOf(asyncList.toArray(CompletableFuture[]::new)).join();
+        // 遍历集合 创建推荐话题列表  然后批量插入数据库
+        List<ProposeTopic> proposeTopicList = proposeTopicIdList.stream().map(proposeId ->
+                new ProposeTopic(userId, proposeId, 50.0)).toList();
+        int result = proposeMapper.insertBatch(proposeTopicList);
+        logger.info("批量插入用户查看话题关键字推荐列表成功，推荐条数：{}，插入结果：{}", proposeTopicList.size(), result);
+    }
+
+    @Override
+    public void batchUpdateRedisIdListByTopicIdList(List<Integer> deleteTopicIdList) {
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .select(FORUM_TOPIC.CONTENT_KEY)
+                .where(FORUM_TOPIC.ID.in(deleteTopicIdList))
+                .and(FORUM_TOPIC.STATUS.eq(3))
+                .and(FORUM_TOPIC.TYPE.eq(1));
+        List<String> contentKeyList = topicMapper.selectListByQueryAs(queryWrapper, String.class);
+        if (contentKeyList == null || contentKeyList.isEmpty()) {
+            logger.warn("获取到的话题关键字为空，结束方法");
+            return;
+        }
+        // 关键字去重
+        Set<String> keySet = new HashSet<>(Arrays.asList(String.join(",", contentKeyList).split(",")));
+        List<List<String>> batches = new ArrayList<>();
+        // 如果关键字太多 那么进行分批处理
+        if (keySet.size() > MAX_DELETE_BATCH) {
+            logger.info("需要清理的关键字超过最大处理大小，数量：{}，开始分批处理", keySet.size());
+            for (int i = 0; i < keySet.size(); i += MAX_DELETE_BATCH) {
+                int endIndex = Math.min(i + MAX_DELETE_BATCH, keySet.size());
+                List<String> batch = new ArrayList<>(keySet).subList(i, endIndex);
+                batches.add(batch);
+            }
+        }else {
+            batches.add(new ArrayList<>(keySet));
+        }
+        batches.forEach(keyList -> {
+            // 每个关键字启动一个线程 多线程并发删除
+            List<CompletableFuture<Void>> asyncList = new ArrayList<>();
+            keyList.forEach(key -> {
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    List<Integer> idList = redisTemplate.opsForValue().get(key);
+                    // 如果Key获取到的idList为空或者删除了当前id后为空 那么就将key删除
+                    if (idList != null && !idList.isEmpty()) {
+                        idList.removeAll(deleteTopicIdList);
+                        if (idList.isEmpty()) {
+                            redisTemplate.delete(key);
+                        }else {
+                            redisTemplate.opsForValue().set(key, idList);
+                        }
+                    }else {
+                        redisTemplate.delete(key);
+                    }
+                });
+                asyncList.add(future);
+            });
+            // 等待所有线程执行完毕
+            CompletableFuture.allOf(asyncList.toArray(CompletableFuture[]::new)).join();
+        });
     }
 }

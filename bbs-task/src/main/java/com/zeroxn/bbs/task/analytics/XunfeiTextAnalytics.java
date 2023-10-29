@@ -102,7 +102,7 @@ public class XunfeiTextAnalytics implements TextAnalytics{
                 for (byte b : md5) {
                     sb.append(String.format("%02x", b & 0xff));
                 }
-                checkSum = new CacheItem(sb.toString(), Duration.ofMinutes(4).toSeconds() + currentTime);
+                checkSum = new CacheItem(sb.toString(), Duration.ofMinutes(3).toSeconds() + currentTime);
                 cacheMap.put("checkSum", checkSum);
             }catch (NoSuchAlgorithmException ex) {
                 logger.error("请求参数md5摘要失败，错误信息：{}", ex.getMessage());

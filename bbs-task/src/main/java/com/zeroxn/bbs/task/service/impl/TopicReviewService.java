@@ -66,8 +66,8 @@ public class TopicReviewService {
                 CompletableFuture<Boolean> imageResultFuture = CompletableFuture.supplyAsync(() -> securityReview.filterImage(imageUrl));
                 imageResultFutureList.add(imageResultFuture);
             });
+            CompletableFuture.allOf(imageResultFutureList.toArray(CompletableFuture[]::new)).join();
             try {
-                CompletableFuture.allOf(imageResultFutureList.toArray(CompletableFuture[]::new)).get();
                 for (CompletableFuture<Boolean> cf : imageResultFutureList) {
                     Boolean result = cf.get();
                     if (result == null || !result) {
@@ -76,7 +76,7 @@ public class TopicReviewService {
                 }
                 return Optional.of(true);
             } catch (InterruptedException | ExecutionException e) {
-                logger.error("等待图片审查线程结束异常，错误信息：{}", e.getMessage());
+                logger.error("获取图片审核异步任务结果失败，错误信息：{}", e.getMessage());
             }
             return Optional.empty();
         });

@@ -57,5 +57,23 @@ public interface TopicService {
      * @param topicId 话题id
      * @return 返回空或话题详情
      */
-    ForumTopic queryTopic(Integer topicId);
+    ForumTopic queryReviewTopic(Integer topicId);
+
+    /**
+     * 帖子/话题发布后 添加到Redis的关键字缓存Id列表中
+     * @param topicId 帖子/话题Id
+     */
+    void addTopicToRedisIdList(Integer topicId);
+
+    /**
+     * 用户在查看话题/帖子后的推荐行为
+     * @param topicId 话题/帖子 ID
+     */
+    void handlerViewTopicAfterPropose(Long userId, Integer topicId);
+
+    /**
+     * 批量处理话题/帖子在被删除后清理在Redis关键字缓存中的Id
+     * @param deleteTopicIdList 被删除的帖子/话题Id列表
+     */
+    void batchUpdateRedisIdListByTopicIdList(List<Integer> deleteTopicIdList);
 }

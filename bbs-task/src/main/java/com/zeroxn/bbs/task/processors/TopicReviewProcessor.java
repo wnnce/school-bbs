@@ -56,7 +56,7 @@ public class TopicReviewProcessor implements BasicProcessor {
                 topicService.updateTopicStatus(task.getTopicId(), 2);
                 return;
             }
-            ForumTopic topic = topicService.queryTopic(task.getTopicId());
+            ForumTopic topic = topicService.queryReviewTopic(task.getTopicId());
             if (topic == null) {
                 logger.info("帖子被删除，清除当前异常审查任务，taskId：{}, topicId: {}", task.getId(), task.getTopicId());
                 taskService.deleteReviewTask(task.getId());
@@ -79,6 +79,9 @@ public class TopicReviewProcessor implements BasicProcessor {
             } else {
                 logger.info("帖子审查通过，删除任务，更新帖子状态");
                 topicService.updateTopicStatus(task.getTopicId(), 0);
+                if (topic.getType() == 1) {
+                    topicService.addTopicToRedisIdList(task.getTopicId());
+                }
             }
             taskService.deleteReviewTask(task.getId());
         });

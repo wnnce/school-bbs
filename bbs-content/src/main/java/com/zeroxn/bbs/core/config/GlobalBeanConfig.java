@@ -12,11 +12,9 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.base.cache.InMemoryCacheService;
+import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.core.filter.TrieSensitiveTextFilter;
 import okhttp3.OkHttpClient;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +31,7 @@ import java.time.format.DateTimeFormatter;
  * @DateTime: 2023-10-10 21:28:09
  * @Description: 全局Bean配置类，用于注入一些项目中通用的Bean
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class GlobalBeanConfig {
 
     /**
@@ -79,24 +77,6 @@ public class GlobalBeanConfig {
                 .readTimeout(Duration.ofSeconds(10))
                 .writeTimeout(Duration.ofSeconds(10))
                 .build();
-    }
-
-    /**
-     * 生成帖子/话题关键字需要用到的RabbitMQ Queue
-     * @return 返回需要生成的Queue
-     */
-    @Bean
-    public Queue bbsTopicQueue() {
-        return new Queue("bbs.topic");
-    }
-
-    /**
-     * 自定义消息队列的消息解析器，注入jackson的消息解析器，消息序列化为Json数据，默认为base64
-     * @return 返回基于Jackson的消息解析器
-     */
-    @Bean
-    public MessageConverter jacksonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
     }
 
     @Bean

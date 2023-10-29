@@ -2,12 +2,14 @@ package com.zeroxn.bbs.web.service.impl;
 
 import com.zeroxn.bbs.base.entity.UserAction;
 import com.zeroxn.bbs.base.entity.UserOrbit;
+import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.web.dto.SaveOrbitDto;
 import com.zeroxn.bbs.web.mapper.UserActionMapper;
 import com.zeroxn.bbs.web.mapper.UserOrbitMapper;
 import com.zeroxn.bbs.web.service.OtherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,10 +22,12 @@ public class OtherServiceImpl implements OtherService {
     private static final Logger logger = LoggerFactory.getLogger(OtherServiceImpl.class);
     private final UserActionMapper actionMapper;
     private final UserOrbitMapper orbitMapper;
+    private final RabbitTemplate rabbitTemplate;
 
-    public OtherServiceImpl(UserActionMapper actionMapper, UserOrbitMapper orbitMapper) {
+    public OtherServiceImpl(UserActionMapper actionMapper, UserOrbitMapper orbitMapper, RabbitTemplate rabbitTemplate) {
         this.actionMapper = actionMapper;
         this.orbitMapper = orbitMapper;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -35,6 +39,9 @@ public class OtherServiceImpl implements OtherService {
         int result = actionMapper.insert(userAction);
         if (result <= 0) {
             logger.error("插入用户行为表失败，userId：{}", userAction.getUserId());
+        }else {
+            rabbitTemplate.convertAndSend(QueueConstant.VIEW_QUEUE, userAction.getTopicId());
+            logger.info("用户行文表插入成功，RabbitMQ消息发送成功：topicId:{}", userAction);
         }
     }
 
