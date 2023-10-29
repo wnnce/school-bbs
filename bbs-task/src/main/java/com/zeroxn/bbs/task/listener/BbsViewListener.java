@@ -21,6 +21,12 @@ public class BbsViewListener {
     public BbsViewListener(TopicService topicService) {
         this.topicService = topicService;
     }
+
+    /**
+     * 接受到用户点击帖子/话题后的行为时，先通过id获取帖子/话题详情，再通过该详情的关键字列表去redis缓存中查询对应的话题id列表
+     * 取第一位（最后添加）, 然后将获取到的话题id写入到用户推荐表
+     * @param userAction 用户点击行为对象
+     */
     @RabbitListener(queues = QueueConstant.VIEW_QUEUE)
     public void listenerViewQueue(UserAction userAction) {
         logger.info("监听到用户点击行为，topicId：{}，开始处理", userAction.getTopicId());

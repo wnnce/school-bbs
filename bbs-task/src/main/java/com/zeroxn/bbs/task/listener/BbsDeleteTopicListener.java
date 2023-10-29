@@ -22,6 +22,10 @@ public class BbsDeleteTopicListener {
         this.topicService = topicService;
     }
 
+    /**
+     * 当帖子/话题被删除时，同步删除其在redis中的关键字id缓存
+     * @param topicId 被删除的话题ID
+     */
     @RabbitListener(queues = QueueConstant.DELETE_QUEUE)
     public void listenerTopicDeleteQueue(Integer topicId) {
         logger.info("接受到话题删除消息，topicId：{}", topicId);
