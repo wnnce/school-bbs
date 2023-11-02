@@ -29,8 +29,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
-import static com.mybatisflex.core.query.QueryMethods.count;
-import static com.mybatisflex.core.query.QueryMethods.max;
+import static com.mybatisflex.core.query.QueryMethods.*;
 import static com.zeroxn.bbs.base.entity.table.CommentTableDef.COMMENT;
 import static com.zeroxn.bbs.base.entity.table.ForumTopicTableDef.FORUM_TOPIC;
 import static com.zeroxn.bbs.base.entity.table.ProposeTopicTableDef.PROPOSE_TOPIC;
@@ -251,6 +250,16 @@ public class TopicServiceImpl implements TopicService {
                 new ProposeTopic(userId, proposeId, 50.0)).toList();
         int result = proposeMapper.insertBatch(proposeTopicList);
         logger.info("批量插入用户查看话题关键字推荐列表成功，推荐条数：{}，插入结果：{}", proposeTopicList.size(), result);
+    }
+
+    @Override
+    public List<Long> listProposeTopicUserid() {
+        return proposeMapper.listProposeTopicUserId();
+    }
+
+    @Override
+    public int deleteUserOldPropose(Long userId, Integer limit) {
+        return proposeMapper.deleteUserOldPropose(userId, limit);
     }
 
     @Override

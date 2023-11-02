@@ -76,4 +76,18 @@ public interface TopicService {
      * @param deleteTopicIdList 被删除的帖子/话题Id列表
      */
     void batchUpdateRedisIdListByTopicIdList(List<Integer> deleteTopicIdList);
+
+    /**
+     * 获取用户话题推荐表中去重过后所有的用户Id
+     * @return 返回空或用户id列表
+     */
+    List<Long> listProposeTopicUserid();
+
+    /**
+     * 通过用户id删除旧的话题推荐
+     * @param userId 用户id
+     * @param limit 保留的话题推荐数
+     * @return 返回删除的记录数
+     */
+    int deleteUserOldPropose(Long userId, Integer limit);
 }
