@@ -147,7 +147,7 @@ public class QiniuAutoConfiguration {
 
 ### 任务模块
 
-任务模块除了依赖内容模块的`Postgresql`和`RabbitMQ`，还依赖`PwoerJob`任务平台。同样也需要修改讯飞自然语言处理和百度智能平台的配置。给出`Docker`部署`PowerJob`的`docker-compose.yml`文件示例。
+任务模块除了依赖内容模块的`Postgresql`和`RabbitMQ`，还依赖`PwoerJob`任务平台和`Redis`。同样也需要修改讯飞自然语言处理和百度智能平台的配置。给出`Docker`部署`PowerJob`和`Redis`的`docker-compose.yml`文件示例。
 
 ```yaml
 version: '3.1'
@@ -178,6 +178,15 @@ services:
     network_mode: host
     volumes:
       - ./powerjob/powerjob-server:/root/powerjob/server/
+  # redis
+  redis:
+    container_name: redis
+    image: redis/redis-stack-server
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_ARGS: "--requirepass admin"
 ```
 
 ```bash
@@ -191,41 +200,42 @@ docker-compose up -d
 
 ```yaml
 spring:
-  # postgresql
+  # Postgresql
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: 'jdbc:postgresql://10.10.10.10:5432/school_bbs'
+    url: 'jdbc:postgresql://10.10.10.12:5432/school_bbs'
     username: postgres
     password: admin
-  # rabbitmq
+  # RabbitMQ
   rabbitmq:
-    host: 10.10.10.10
+    host: 10.10.10.12
     port: 5672
     virtual-host: /
     username: root
     password: admin
-# powerjob配置
+  # Redis配置
+  data:
+    redis:
+      host: 10.10.10.12
+      port: 6379
+      password: admin
+      database: 3
 powerjob:
   worker:
-  	# 应用名称
     app-name: bbs-task
-    # 调度平台地址
-    server-address: 10.10.10.10:7700
-    # 数据存储模式
+    server-address: 10.10.10.12:7700
     store-strategy: memory
-    # 连接模式
     protocol: http
-# 讯飞自然语言处理平台配置
+# 讯飞自然语言处理
 xunfei:
   analytics:
     request-url: 'https://ltpapi.xfyun.cn/v1/ke'
     appid: '49681549'
     api-key: '919495c6d603fd43d9724e94d6056a4c'
     type: 'dependent'
-# 生成关键字的数量
 analysis:
-  size: 6
-# 百度智能平台配置
+  size: 4
+# 百度内容审核
 baidu:
   app-id: '41596274'
   app-key: '5qPg3mUZ5CB5HSKuueEBsqaF'
