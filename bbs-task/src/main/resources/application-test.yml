@@ -10,6 +10,18 @@ spring:
     virtual-host: /
     username: root
     password: admin
+  data:
+    redis:
+      host: 10.10.10.12
+      port: 6379
+      password: admin
+      database: 3
+powerjob:
+  worker:
+    app-name: bbs-task
+    server-address: 10.10.10.12:7700
+    store-strategy: memory
+    protocol: http
 xunfei:
   analytics:
     request-url: 'https://ltpapi.xfyun.cn/v1/ke'
@@ -18,9 +30,8 @@ xunfei:
     type: 'dependent'
 analysis:
   size: 4
-powerjob:
-  worker:
-    app-name: bbs-task
-    server-address: 10.10.10.12:7700
-    store-strategy: memory
-    protocol: http
+baidu:
+  app-id: '41596274'
+  app-key: '5qPg3mUZ5CB5HSKuueEBsqaF'
+  secret-key: 'acnSBKEBSBTtL98SlgpFOZqGGhg6ngKO'
+  grant-type: 'client_credentials'
