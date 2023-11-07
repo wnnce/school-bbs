@@ -1,6 +1,5 @@
-package com.zeroxn.bbs.core.exception.handle;
+package com.zeroxn.bbs.core.exception;
 
-import com.zeroxn.bbs.core.exception.CustomException;
 import com.zeroxn.bbs.web.dto.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
