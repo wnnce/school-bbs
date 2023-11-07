@@ -3,6 +3,7 @@ package com.zeroxn.bbs.web.service.impl;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.core.query.QueryWrapper;
+import com.zeroxn.bbs.base.constant.ExchangeConstant;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.base.entity.ProposeTopic;
 import com.zeroxn.bbs.base.entity.UserExtras;
@@ -240,7 +241,7 @@ public class ContentServiceImpl implements ContentService {
             }
             transactionManager.commit(delete);
             logger.info("删除Topic成功，topicId：{}", topicId);
-            rabbitTemplate.convertAndSend(QueueConstant.DELETE_QUEUE, topicId);
+            rabbitTemplate.convertAndSend(ExchangeConstant.DELETE_EXCHANGE, "", topicId);
         }catch (Exception e) {
             // 出现异常回滚事务
             logger.error("删除帖子/话题失败，开始回滚，错误信息：{}", e.getMessage());
