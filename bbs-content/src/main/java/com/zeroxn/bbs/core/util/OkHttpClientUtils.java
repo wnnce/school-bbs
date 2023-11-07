@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.utils;
+package com.zeroxn.bbs.core.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;

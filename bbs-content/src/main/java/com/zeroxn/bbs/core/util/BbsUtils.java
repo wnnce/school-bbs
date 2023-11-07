@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.utils;
+package com.zeroxn.bbs.core.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;

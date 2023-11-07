@@ -2,6 +2,7 @@ package com.zeroxn.bbs.task.listener;
 
 import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.base.entity.ForumTopic;
+import com.zeroxn.bbs.base.entity.UserAction;
 import com.zeroxn.bbs.task.service.ReviewTaskService;
 import com.zeroxn.bbs.task.service.TopicService;
 import com.zeroxn.bbs.task.service.impl.TopicReviewService;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -31,6 +33,26 @@ public class BbsTopicListener {
         this.topicService = topicService;
         this.taskService = taskService;
         this.reviewService = reviewService;
+    }
+
+    /**
+     * 当帖子/话题被删除时，同步删除其在redis中的关键字id缓存
+     * @param topicId 被删除的话题ID
+     */
+    @RabbitListener(queues = QueueConstant.DELETE_QUEUE)
+    public void listenerTopicDeleteQueue(Integer topicId) {
+        logger.info("接受到话题删除消息，topicId：{}", topicId);
+        topicService.batchUpdateRedisIdListByTopicIdList(Collections.singletonList(topicId));
+    }
+    /**
+     * 接受到用户点击帖子/话题后的行为时，先通过id获取帖子/话题详情，再通过该详情的关键字列表去redis缓存中查询对应的话题id列表
+     * 取第一位（最后添加）, 然后将获取到的话题id写入到用户推荐表
+     * @param userAction 用户点击行为对象
+     */
+    @RabbitListener(queues = QueueConstant.VIEW_QUEUE)
+    public void listenerViewQueue(UserAction userAction) {
+        logger.info("监听到用户点击行为，topicId：{}，开始处理", userAction.getTopicId());
+        topicService.handlerViewTopicAfterPropose(userAction.getUserId(), userAction.getTopicId());
     }
 
     /**

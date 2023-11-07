@@ -91,6 +91,7 @@ public class TopicServiceImpl implements TopicService {
             logger.warn("帖子已被删除，放弃保存，topicId:{}", topic.getId());
         }else {
             String contentKey = Strings.join(keywordList, ',');
+            topic.setContentKey(contentKey);
             boolean result = UpdateChain.of(ForumTopic.class)
                     .set(FORUM_TOPIC.CONTENT_KEY, contentKey)
                     .where(FORUM_TOPIC.ID.eq(topic.getId()))

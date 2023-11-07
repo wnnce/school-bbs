@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.base.entity.Student;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
-import com.zeroxn.bbs.core.utils.OkHttpClientUtils;
+import com.zeroxn.bbs.core.util.OkHttpClientUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

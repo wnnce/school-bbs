@@ -1,7 +1,7 @@
 package com.zeroxn.bbs.web.controller;
 
 import com.zeroxn.bbs.base.entity.UserAction;
-import com.zeroxn.bbs.core.utils.BbsUtils;
+import com.zeroxn.bbs.core.util.BbsUtils;
 import com.zeroxn.bbs.web.dto.SaveOrbitDto;
 import com.zeroxn.bbs.web.service.OtherService;
 import io.swagger.v3.oas.annotations.Operation;

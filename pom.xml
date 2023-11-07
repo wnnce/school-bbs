@@ -29,6 +29,7 @@
         <swagger-annotations.version>2.2.9</swagger-annotations.version>
         <hanlp.version>portable-1.8.4</hanlp.version>
         <powerjob.version>4.3.6</powerjob.version>
+        <solr.version>7.7.0</solr.version>
     </properties>
 
     <dependencyManagement>
@@ -72,6 +73,11 @@
                 <groupId>com.hankcs</groupId>
                 <artifactId>hanlp</artifactId>
                 <version>${hanlp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr-solrj</artifactId>
+                <version>${solr.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

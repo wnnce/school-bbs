@@ -3,7 +3,7 @@ package com.zeroxn.bbs.core.common;
 import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.core.config.wechat.WechatProperties;
 import com.zeroxn.bbs.core.exception.ExceptionUtils;
-import com.zeroxn.bbs.core.utils.OkHttpClientUtils;
+import com.zeroxn.bbs.core.util.OkHttpClientUtils;
 import lombok.Getter;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
