@@ -4,6 +4,8 @@ import com.mybatisflex.core.paginate.Page;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.web.dto.*;
 
+import java.util.List;
+
 /**
  * @Author: lisang
  * @DateTime: 2023-10-14 10:54:14
@@ -95,4 +97,20 @@ public interface ContentService {
      * @return 返回当前用户收藏的帖子/话题列表或空
      */
     Page<UserTopicDto> pageUserStarTopic(UserTopicQueryDto userTopicDto, Long userId);
+
+    /**
+     * 通过帖子/话题ID列表获取帖子/话题详情列表
+     * @param topicIdList 帖子/话题ID列表
+     * @return 返回帖子/话题详情列表
+     */
+    List<UserTopicDto> listTopicByTopicIdList(List<Integer> topicIdList);
+
+    /**
+     * 搜素帖子/话题列表 Solr搜索失败的降级逻辑
+     * @param keyword 搜索关键字
+     * @param page 页码
+     * @param size 每页记录数
+     * @return 返回搜索结果
+     */
+    Page<UserTopicDto> search(String keyword, int page, int size);
 }

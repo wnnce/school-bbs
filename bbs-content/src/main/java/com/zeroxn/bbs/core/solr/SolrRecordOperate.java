@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.search;
+package com.zeroxn.bbs.core.solr;
 
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -9,6 +9,7 @@ import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @Author: lisang
@@ -82,7 +83,7 @@ public final class SolrRecordOperate {
     }
 
     private String getRecordClassIndexName(Class<?> clazz) {
-        Document annotation = clazz.getAnnotation(Document.class);
+        final Document annotation = clazz.getAnnotation(Document.class);
         Assert.notNull(annotation, "实体类型的Document注解不能为空");
         return annotation.indexName();
     }

@@ -2,7 +2,7 @@ server:
   port: 8040
 spring:
   profiles:
-    active: dev
+    active: test
   servlet:
     multipart:
       max-request-size: 100MB

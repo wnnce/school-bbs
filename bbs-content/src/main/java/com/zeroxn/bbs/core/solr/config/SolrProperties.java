@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.config.solr;
+package com.zeroxn.bbs.core.solr.config;
 
 import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

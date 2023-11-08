@@ -7,6 +7,7 @@ import com.zeroxn.bbs.base.validation.ValidationGroups.SaveTopicValidation;
 import com.zeroxn.bbs.core.util.BbsUtils;
 import com.zeroxn.bbs.web.dto.*;
 import com.zeroxn.bbs.web.service.ContentService;
+import com.zeroxn.bbs.web.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,8 +26,10 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "话题/帖子接口")
 public class ContentController {
     private final ContentService contentService;
-    public ContentController(ContentService contentService) {
+    private final SearchService searchService;
+    public ContentController(ContentService contentService, SearchService searchService) {
         this.contentService = contentService;
+        this.searchService = searchService;
     }
 
     @PostMapping("/topic")
@@ -127,6 +130,13 @@ public class ContentController {
                                                         @AuthenticationPrincipal Jwt jwt) {
         Long userId = BbsUtils.formJwtGetUserId(jwt);
         Page<UserTopicDto> topicDtoPage = contentService.pageUserStarTopic(userTopicDto, userId);
+        return Result.success(topicDtoPage);
+    }
+
+    @PostMapping("/search")
+    @Operation(description = "搜索接口")
+    public Result<Page<UserTopicDto>> searchTopic(@Validated PageQueryDto pageDto, @RequestBody SearchDto searchDto) {
+        Page<UserTopicDto> topicDtoPage = searchService.search(searchDto.getKeyword(), pageDto.getPage(), pageDto.getSize());
         return Result.success(topicDtoPage);
     }
 }

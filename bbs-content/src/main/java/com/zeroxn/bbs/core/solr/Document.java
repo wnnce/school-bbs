@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.search;
+package com.zeroxn.bbs.core.solr;
 
 import org.springframework.core.annotation.AliasFor;
 

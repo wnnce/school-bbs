@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.config.solr;
+package com.zeroxn.bbs.core.solr.config;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

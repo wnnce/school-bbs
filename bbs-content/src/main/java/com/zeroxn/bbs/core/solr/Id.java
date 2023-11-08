@@ -1,4 +1,4 @@
-package com.zeroxn.bbs.core.search;
+package com.zeroxn.bbs.core.solr;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -299,6 +299,27 @@ public class ContentServiceImpl implements ContentService {
 
     }
 
+    @Override
+    public List<UserTopicDto> listTopicByTopicIdList(List<Integer> topicIdList) {
+        QueryWrapper queryWrapper = this.initUserTopicQueryWrapper(null)
+                .and(FORUM_TOPIC.ID.in(topicIdList))
+                .and(FORUM_TOPIC.STATUS.eq(0))
+                .groupBy(FORUM_TOPIC.ID, USER.ID);
+        return topicMapper.selectListByQueryAs(queryWrapper, UserTopicDto.class);
+    }
+
+    @Override
+    public Page<UserTopicDto> search(String keyword, int page, int size) {
+        QueryWrapper queryWrapper = this.initUserTopicQueryWrapper(null)
+                .and(FORUM_TOPIC.STATUS.eq(0))
+                .and(FORUM_TOPIC.TITLE.like("%" + keyword + "%")
+                        .or(FORUM_TOPIC.CONTENT.like("%" + keyword + "%"))
+                        .or(FORUM_TOPIC.CONTENT_KEY.like("%" + keyword + "%")))
+                .orderBy(FORUM_TOPIC.CREATE_TIME.desc())
+                .groupBy(FORUM_TOPIC.ID, FORUM_TOPIC.CREATE_TIME, USER.ID);
+        return topicMapper.paginateAs(page, size, queryWrapper, UserTopicDto.class);
+    }
+
     /**
      * 检查发帖内容是否存在敏感词
      * @param text 文本内容

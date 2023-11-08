@@ -2,8 +2,8 @@ package com.zeroxn.bbs.core.listener;
 
 import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.base.entity.ForumTopic;
-import com.zeroxn.bbs.core.search.SolrRecordOperate;
-import com.zeroxn.bbs.core.search.TopicIndex;
+import com.zeroxn.bbs.core.solr.SolrRecordOperate;
+import com.zeroxn.bbs.core.solr.TopicIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;

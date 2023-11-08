@@ -451,16 +451,26 @@ comment on column bbs_review_task.retry_count is '当前任务的重试次数';
 alter table bbs_review_task
     owner to postgres;
 
-
-create table bbs_user_friends (
-      id serial primary key not null ,
-      user_id bigint unique not null ,
-      friends_ids bigint[],
-      update_time timestamp default current_timestamp
+create table bbs_user_friends
+(
+    id          serial
+        primary key,
+    user_id     bigint not null
+        unique,
+    friends_ids bigint[],
+    update_time timestamp default CURRENT_TIMESTAMP
 );
 
 comment on table bbs_user_friends is '用户好友表';
+
 comment on column bbs_user_friends.id is '主键Id,自增';
+
 comment on column bbs_user_friends.user_id is '用户ID,唯一';
+
 comment on column bbs_user_friends.friends_ids is '该用户的好友id列表';
+
 comment on column bbs_user_friends.update_time is '数据的最后更新时间';
+
+alter table bbs_user_friends
+    owner to postgres;
+

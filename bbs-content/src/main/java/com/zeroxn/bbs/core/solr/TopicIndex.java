@@ -1,9 +1,7 @@
-package com.zeroxn.bbs.core.search;
+package com.zeroxn.bbs.core.solr;
 
 import lombok.*;
 import org.apache.solr.client.solrj.beans.Field;
-
-import java.time.LocalDateTime;
 
 /**
  * @Author: lisang

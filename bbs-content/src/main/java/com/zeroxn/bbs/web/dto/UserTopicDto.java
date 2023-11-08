@@ -3,6 +3,7 @@ package com.zeroxn.bbs.web.dto;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * @Author: lisang
@@ -12,6 +13,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@ToString
 public class UserTopicDto extends ForumTopic {
     /**
      * 发帖用户昵称

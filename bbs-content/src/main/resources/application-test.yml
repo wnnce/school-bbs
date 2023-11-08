@@ -28,3 +28,5 @@ qiniu:
   secret-key: 'CymD_ID_-__AiYbnHbUkIMe1FTFXCnfC52NVEZG2'
   bucket: 'img-sr'
   bucket-domain: 'https://image.qiniu.vnc.ink/'
+solr:
+  address: 'http://10.10.10.12:8080/solr'

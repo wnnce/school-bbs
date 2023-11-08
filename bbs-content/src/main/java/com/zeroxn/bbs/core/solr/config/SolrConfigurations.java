@@ -1,6 +1,6 @@
-package com.zeroxn.bbs.core.config.solr;
+package com.zeroxn.bbs.core.solr.config;
 
-import com.zeroxn.bbs.core.search.SolrRecordOperate;
+import com.zeroxn.bbs.core.solr.SolrRecordOperate;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.springframework.context.annotation.Bean;
 
