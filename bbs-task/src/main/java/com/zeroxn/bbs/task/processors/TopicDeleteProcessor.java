@@ -1,7 +1,9 @@
 package com.zeroxn.bbs.task.processors;
 
+import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.task.dao.TopicDao;
 import com.zeroxn.bbs.task.service.TopicService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import tech.powerjob.worker.core.processor.ProcessResult;
 import tech.powerjob.worker.core.processor.TaskContext;
@@ -20,8 +22,10 @@ import java.util.List;
 @Component(value = "topicDeleteProcessor")
 public class TopicDeleteProcessor implements BasicProcessor {
     private final TopicService topicService;
-    public TopicDeleteProcessor(TopicService topicService) {
+    private final RabbitTemplate rabbitTemplate;
+    public TopicDeleteProcessor(TopicService topicService, RabbitTemplate rabbitTemplate) {
         this.topicService = topicService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -45,7 +49,7 @@ public class TopicDeleteProcessor implements BasicProcessor {
         logger.info("待处理的话题{}个，开始进行删除权重处理", topicDaoList.size());
         List<Integer> deleteTopicIdList = topicDaoList.stream().filter(topic -> {
             LocalDateTime now = LocalDateTime.now();
-            int publishHour = (int) Math.ceil(ChronoUnit.HOURS.between(topic.getCreateTime(), now));
+            final int publishHour = (int) Math.ceil(ChronoUnit.HOURS.between(topic.getCreateTime(), now));
             int lastCommentHour = 0;
             if (topic.getLastCommentTime() != null) {
                 lastCommentHour = (int) Math.ceil(ChronoUnit.HOURS.between(topic.getLastCommentTime(), now));
@@ -62,7 +66,13 @@ public class TopicDeleteProcessor implements BasicProcessor {
             return new ProcessResult(true, null);
         }
         logger.info("{}个话题待删除，调用批量删除方法", deleteTopicIdList.size());
-        boolean result = topicService.deleteTopicByTopicIdList(deleteTopicIdList, logger);
+        final boolean result = topicService.deleteTopicByTopicIdList(deleteTopicIdList, logger);
+        // 发布消息 删除任务删除的话题也需要删除Solr中的索引
+        if (result) {
+            deleteTopicIdList.forEach(topicId -> {
+                rabbitTemplate.convertAndSend(QueueConstant.INDEX_DELETE_QUEUE, topicId);
+            });
+        }
         return new ProcessResult(result, null);
     }
 }

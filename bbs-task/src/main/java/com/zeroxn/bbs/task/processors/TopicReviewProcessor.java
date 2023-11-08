@@ -1,10 +1,12 @@
 package com.zeroxn.bbs.task.processors;
 
+import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.base.entity.ForumTopic;
 import com.zeroxn.bbs.base.entity.ReviewTask;
 import com.zeroxn.bbs.task.handler.review.ReviewHandler;
 import com.zeroxn.bbs.task.service.ReviewTaskService;
 import com.zeroxn.bbs.task.service.TopicService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import tech.powerjob.worker.core.processor.ProcessResult;
 import tech.powerjob.worker.core.processor.TaskContext;
@@ -23,10 +25,13 @@ public class TopicReviewProcessor implements BasicProcessor {
     private final ReviewTaskService taskService;
     private final TopicService topicService;
     private final ReviewHandler reviewHandler;
-    public TopicReviewProcessor(ReviewTaskService taskService, ReviewHandler reviewHandler, TopicService topicService) {
+    private final RabbitTemplate rabbitTemplate;
+    public TopicReviewProcessor(ReviewTaskService taskService, ReviewHandler reviewHandler, TopicService topicService,
+                                RabbitTemplate rabbitTemplate) {
         this.taskService = taskService;
         this.topicService = topicService;
         this.reviewHandler = reviewHandler;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -79,6 +84,8 @@ public class TopicReviewProcessor implements BasicProcessor {
             } else {
                 logger.info("帖子审查通过，删除任务，更新帖子状态");
                 topicService.updateTopicStatus(task.getTopicId(), 0);
+                // 发布消息 添加缓存
+                rabbitTemplate.convertAndSend(QueueConstant.INDEX_TOPIC_QUEUE, topic);
                 if (topic.getType() == 1) {
                     topicService.addTopicToRedisIdList(task.getTopicId());
                 }

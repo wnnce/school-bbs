@@ -9,6 +9,7 @@ import com.zeroxn.bbs.task.service.impl.TopicReviewService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -29,10 +30,13 @@ public class BbsTopicListener {
     private final ReviewTaskService taskService;
     private final TopicService topicService;
     private final TopicReviewService reviewService;
-    public BbsTopicListener(TopicService topicService, ReviewTaskService taskService, TopicReviewService reviewService) {
+    private final RabbitTemplate rabbitTemplate;
+    public BbsTopicListener(TopicService topicService, ReviewTaskService taskService, TopicReviewService reviewService,
+                            RabbitTemplate rabbitTemplate) {
         this.topicService = topicService;
         this.taskService = taskService;
         this.reviewService = reviewService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     /**
@@ -98,6 +102,8 @@ public class BbsTopicListener {
                 } else {
                     logger.info("帖子审核通过，允许发布");
                     topicService.updateTopicStatus(topic.getId(), 0);
+                    // 发布消息添加缓存
+                    rabbitTemplate.convertAndSend(QueueConstant.INDEX_TOPIC_QUEUE, topic);
                     if (topic.getType() == 1) {
                         // 添加到redis的关键字话题Id列表缓存
                         topicService.addTopicToRedisIdList(topic.getId());
