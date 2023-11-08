@@ -59,9 +59,9 @@ public class UserServiceImpl implements UserService {
      * @return 返回生成的Token
      */
     @Override
-    public String login(String openId) {
-//        String openId = wechatService.getOpenId(code);
-//        ExceptionUtils.isConditionThrowServer(openId == null, "登录失败，获取OpenId失败");
+    public String login(String code) {
+        String openId = wechatService.getOpenId(code);
+        ExceptionUtils.isConditionThrowServer(openId == null, "登录失败，获取OpenId失败");
         User findUser = userMapper.selectOneByQuery(new QueryWrapper().where(USER.OPENID.eq(openId)));
         if (findUser != null) {
             if (findUser.getUserAuth() == 1) {

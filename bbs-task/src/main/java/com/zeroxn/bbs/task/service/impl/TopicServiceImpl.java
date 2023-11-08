@@ -27,9 +27,9 @@ import tech.powerjob.worker.log.OmsLogger;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
-import static com.mybatisflex.core.query.QueryMethods.*;
+import static com.mybatisflex.core.query.QueryMethods.count;
+import static com.mybatisflex.core.query.QueryMethods.max;
 import static com.zeroxn.bbs.base.entity.table.CommentTableDef.COMMENT;
 import static com.zeroxn.bbs.base.entity.table.ForumTopicTableDef.FORUM_TOPIC;
 import static com.zeroxn.bbs.base.entity.table.ProposeTopicTableDef.PROPOSE_TOPIC;
@@ -138,7 +138,7 @@ public class TopicServiceImpl implements TopicService {
                 .where(FORUM_TOPIC.TYPE.eq(1))
                 .and(FORUM_TOPIC.STATUS.eq(0))
                 .and(FORUM_TOPIC.IS_HOT.eq(false))
-                .and("create_time < current_timestamp - interval '1 day'")
+                .and("bbs_forum_topic.create_time < current_timestamp - interval '1 day'")
                 .groupBy(FORUM_TOPIC.ID)
                 .listAs(TopicDao.class);
     }

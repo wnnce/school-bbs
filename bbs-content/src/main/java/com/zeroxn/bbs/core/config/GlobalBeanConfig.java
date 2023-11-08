@@ -12,7 +12,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.base.cache.InMemoryCacheService;
-import com.zeroxn.bbs.base.constant.QueueConstant;
 import com.zeroxn.bbs.core.filter.TrieSensitiveTextFilter;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

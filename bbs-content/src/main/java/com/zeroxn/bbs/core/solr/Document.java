@@ -1,7 +1,5 @@
 package com.zeroxn.bbs.core.solr;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

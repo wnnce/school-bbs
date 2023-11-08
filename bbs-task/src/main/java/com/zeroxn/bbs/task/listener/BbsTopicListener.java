@@ -102,7 +102,7 @@ public class BbsTopicListener {
                 } else {
                     logger.info("帖子审核通过，允许发布");
                     topicService.updateTopicStatus(topic.getId(), 0);
-                    // 发布消息添加缓存
+                    // 发布消息添加索引
                     rabbitTemplate.convertAndSend(QueueConstant.INDEX_TOPIC_QUEUE, topic);
                     if (topic.getType() == 1) {
                         // 添加到redis的关键字话题Id列表缓存
