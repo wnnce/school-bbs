@@ -241,7 +241,11 @@ public class ContentServiceImpl implements ContentService {
             }
             transactionManager.commit(delete);
             logger.info("删除Topic成功，topicId：{}", topicId);
-            rabbitTemplate.convertAndSend(ExchangeConstant.DELETE_EXCHANGE, "", topicId);
+
+            // Solr和Redis中只会添加状态为0的帖子 在事务提交后判断是否发送消息 避免垃圾消息
+            if (findTopic.getStatus() == 0) {
+                rabbitTemplate.convertAndSend(ExchangeConstant.DELETE_EXCHANGE, "", topicId);
+            }
         }catch (Exception e) {
             // 出现异常回滚事务
             logger.error("删除帖子/话题失败，开始回滚，错误信息：{}", e.getMessage());
