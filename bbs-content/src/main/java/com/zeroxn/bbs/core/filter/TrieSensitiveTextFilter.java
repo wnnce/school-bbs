@@ -65,6 +65,11 @@ public class TrieSensitiveTextFilter implements SensitiveTextFilter {
         }
     }
 
+    /**
+     * 过滤敏感词，如果匹配到铭感词，让其一直向下匹配，直至匹配到最终节点，然后将匹配到的敏感词返回
+     * @param text 需要进行敏感词匹配的文本
+     * @return 返回匹配到的敏感词，如果没有则为空
+     */
     @Override
     public String filterText(String text) {
         if (text == null || text.isEmpty()) {

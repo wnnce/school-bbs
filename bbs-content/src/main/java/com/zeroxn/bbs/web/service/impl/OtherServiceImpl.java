@@ -31,7 +31,7 @@ public class OtherServiceImpl implements OtherService {
     }
 
     /**
-     * 保存用户行为信息 保存失败输出error日志
+     * 保存用户行为信息 保存失败输出error日志，保存成功后向消息队列中发布消息，给用户推荐用此话题具有相同关键字的话题
      * @param userAction 用户行为数据
      */
     @Override

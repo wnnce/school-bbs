@@ -128,6 +128,10 @@ public class TopicServiceImpl implements TopicService {
                 .update();
     }
 
+    /**
+     * 获取所有状态为正常的非热门话题，发布时间超过1天的
+     * @return 话题列表或空
+     */
     @Override
     public List<TopicDao> listNotHotTopic() {
         return QueryChain.of(ForumTopic.class)
@@ -190,6 +194,7 @@ public class TopicServiceImpl implements TopicService {
                 .where(FORUM_TOPIC.ID.eq(topicId))
                 .and(FORUM_TOPIC.STATUS.eq(0))
                 .and(FORUM_TOPIC.TYPE.eq(1));
+        // 先获取用户查看话题的关键字
         String contentKey = topicMapper.selectOneByQueryAs(queryWrapper, String.class);
         if (contentKey == null || contentKey.isEmpty()) {
             logger.warn("该ID不为话题或话题关键字为空，跳过操作，topicId：{}", topicId);

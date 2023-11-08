@@ -37,6 +37,10 @@ public class RabbitConfiguration {
         return new Jackson2JsonMessageConverter();
     }
 
+    /**
+     * 通过反射初始化RabbitMQ需要的Exchange和Queue
+     * @throws Exception 异常
+     */
     @PostConstruct
     public void init() throws Exception {
         Class<QueueConstant> queuesClass = QueueConstant.class;
