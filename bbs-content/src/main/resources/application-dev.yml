@@ -10,9 +10,11 @@ spring:
     virtual-host: /
     username: root
     password: admin
+# 微信服务器配置
 wechat:
   appid: wxb4a5026fc9990e21
   secret: 9d68af054cf1f3ecb29c23398a9a06e7
+# 本地词典路径 关键字一行一个
 trie:
   path: /home/lisang/Documents/words_lines.txt
 jwt:

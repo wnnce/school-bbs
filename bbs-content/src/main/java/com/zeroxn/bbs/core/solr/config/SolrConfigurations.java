@@ -1,6 +1,9 @@
 package com.zeroxn.bbs.core.solr.config;
 
 import com.zeroxn.bbs.core.solr.SolrRecordOperate;
+import com.zeroxn.bbs.web.service.ContentService;
+import com.zeroxn.bbs.web.service.SearchService;
+import com.zeroxn.bbs.web.service.impl.SearchServiceImpl;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.springframework.context.annotation.Bean;
 
@@ -24,6 +27,10 @@ public class SolrConfigurations {
         @Bean
         SolrRecordOperate solrRecordOperate(HttpSolrClient solrClient) {
             return new SolrRecordOperate(solrClient);
+        }
+        @Bean
+        SearchService searchService(ContentService contentService, HttpSolrClient solrClient) {
+            return new SearchServiceImpl(contentService, solrClient);
         }
     }
 

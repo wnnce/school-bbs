@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.beans.Field;
 @NoArgsConstructor
 @ToString
 @Builder
+// Solr索引库名称
 @Document(indexName = "collection1")
 public class TopicIndex {
     /**

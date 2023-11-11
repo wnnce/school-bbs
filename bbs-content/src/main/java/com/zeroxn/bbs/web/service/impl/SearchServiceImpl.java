@@ -13,7 +13,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -22,7 +21,6 @@ import java.util.List;
  * @DateTime: 2023-11-08 11:10:11
  * @Description: 搜索接口实现类
  */
-@Service
 public class SearchServiceImpl implements SearchService, Fallback {
     private static final Logger logger = LoggerFactory.getLogger(SearchServiceImpl.class);
     private final ContentService contentService;

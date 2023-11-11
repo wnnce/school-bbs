@@ -40,9 +40,9 @@ public class TrieSensitiveTextFilter implements SensitiveTextFilter {
      * 初始化Trie字典树
      */
     @PostConstruct
-    private void init() {
+    private void init() throws IOException {
+        InputStream inputStream = null;
         try {
-            InputStream inputStream = null;
             if (wordsPath.startsWith("classpath")) {
                 inputStream = resourceLoader.getResource(wordsPath).getInputStream();
             }else {
@@ -60,13 +60,17 @@ public class TrieSensitiveTextFilter implements SensitiveTextFilter {
             logger.info("词典解析完毕，待导入的敏感词 {} 个", stringSet.size());
             stringSet.forEach(this::insert);
             logger.info("敏感词导入完成");
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             logger.error("导入敏感词异常，错误信息：{}", ex.getMessage());
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
         }
     }
 
     /**
-     * 过滤敏感词，如果匹配到铭感词，让其一直向下匹配，直至匹配到最终节点，然后将匹配到的敏感词返回
+     * 过滤敏感词，如果匹配到敏感词，让其一直向下匹配，直至匹配到最终节点，然后将匹配到的敏感词返回
      * @param text 需要进行敏感词匹配的文本
      * @return 返回匹配到的敏感词，如果没有则为空
      */
@@ -81,18 +85,25 @@ public class TrieSensitiveTextFilter implements SensitiveTextFilter {
             TrieNode node = root.getChildren().get(text.charAt(j));
             while (node != null) {
                 String word = null;
+                // 如果是关键字的结束节点 那么提取出敏感词
                 if (node.isEnd()) {
                     word = text.substring(i, j + 1);
                 }
+                // 判断是不是最后一个字 如果是最后一个字并且敏感词不为空 那么返回关键字 否则将node设置为空 结束循环
                 if (j == text.length() - 1) {
                     if (word != null) {
                         return word;
                     }else {
                         node = null;
                     }
-                }else {
+                } else {
+                    // 不是最后一个字的话继续向下匹配敏感词
+                    // 这里如果有两个敏感词 天、天空
+                    // 不做向下匹配的话 只会匹配出"天"敏感词 不会匹配具有该敏感关键字的完整敏感词
+                    // 因为"天"在Trie树中 是一个 end == true 同时又有下级关键字的节点
                     j++;
                     node = node.getChildren().get(text.charAt(j));
+                    // 如果下个字的节点为空 并且当前敏感词不为空的话 那么当前敏感词就是一个完整的敏感词 直接返回
                     if (node == null && word != null) {
                         return word;
                     }

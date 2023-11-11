@@ -13,8 +13,17 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @Getter
 @ConfigurationProperties(prefix = "solr")
 public class SolrProperties {
+    /**
+     * Solr的地址
+     */
     private final String address;
+    /**
+     * Solr的Http连接超时时间
+     */
     private final Integer httpTimeOut;
+    /**
+     * Solr的Socket连接超时时间
+     */
     private final Integer socketTimeOut;
 
     @ConstructorBinding

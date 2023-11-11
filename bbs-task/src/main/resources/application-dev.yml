@@ -1,9 +1,11 @@
 spring:
+  # 数据库配置
   datasource:
     driver-class-name: org.postgresql.Driver
     url: 'jdbc:postgresql://10.10.10.10:5432/school_bbs'
     username: postgres
     password: admin
+  # rabbitMQ配置
   rabbitmq:
     host: 10.10.10.10
     port: 5672
@@ -11,25 +13,30 @@ spring:
     username: root
     password: admin
   data:
+    # redis配置
     redis:
       host: 10.10.10.10
       port: 6379
       password: admin
       database: 3
+# powerjob任务平台配置
 powerjob:
   worker:
     app-name: bbs-task
     server-address: 10.10.10.10:7700
     store-strategy: memory
     protocol: http
+# 讯飞自然语言处理配置
 xunfei:
   analytics:
     request-url: 'https://ltpapi.xfyun.cn/v1/ke'
     appid: '49681549'
     api-key: '919495c6d603fd43d9724e94d6056a4c'
     type: 'dependent'
+# 生成关键字的数量
 analysis:
   size: 4
+# 百度审核平台配置
 baidu:
   app-id: '41596274'
   app-key: '5qPg3mUZ5CB5HSKuueEBsqaF'

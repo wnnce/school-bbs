@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * @Author: lisang
  * @DateTime: 2023-11-07 20:23:27
- * @Description: Solr记录注解
+ * @Description: Solr记录实体类注解
  */
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)

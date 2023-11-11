@@ -97,6 +97,7 @@ public final class SolrRecordOperate {
                     return field.get(record).toString();
                 }catch (IllegalAccessException ex) {
                     logger.error("反射获取记录的ID值异常，错误信息：{}", ex.getMessage());
+                    break;
                 }
             }
         }
