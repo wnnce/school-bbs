@@ -1,7 +1,6 @@
 spring:
   profiles:
-    active: dev
-
+    active: test
 mybatis-flex:
   mapper-locations: classpath:/mappers/*.xml
   type-aliases-package: com.zeroxn.bbs.core.entity
@@ -9,5 +8,6 @@ mybatis-flex:
     map-underscore-to-camel-case: true
 
 logging:
+  config: classpath:logback-spring.xml
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss.SSS
