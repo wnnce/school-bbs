@@ -123,6 +123,7 @@ public class ContentServiceImpl implements ContentService {
                 .and(postDto.getFlag() != null ? FORUM_TOPIC.FLAG.eq(postDto.getFlag()) : noCondition())
                 .and(FORUM_TOPIC.STATUS.eq(0))
                 .groupBy(FORUM_TOPIC.ID, USER.ID)
+                .orderBy(FORUM_TOPIC.SORT.desc())
                 .orderBy(sortColumn, false);
         return topicMapper.paginateAs(postDto.getPage(), postDto.getSize(), queryWrapper, UserTopicDto.class);
     }
@@ -359,7 +360,7 @@ public class ContentServiceImpl implements ContentService {
 
     private QueryWrapper initUserTopicQueryWrapper(Integer type) {
         return QueryWrapper.create()
-                .select(FORUM_TOPIC.ALL_COLUMNS)
+                .select(FORUM_TOPIC.DEFAULT_COLUMNS)
                 .select(count(COMMENT.ID).as("comment_count"))
                 .select(USER.NICK_NAME, USER.AVATAR)
                 .from(FORUM_TOPIC)

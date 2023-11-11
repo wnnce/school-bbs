@@ -124,21 +124,22 @@ create table bbs_forum_topic
 (
     id               serial
         primary key,
-    title            varchar(255) not null,
-    content          text         not null,
+    title            varchar(255)      not null,
+    content          text              not null,
     content_key      text,
     image_urls       varchar(300)[],
     video_url        varchar(300),
-    type             integer      not null,
+    type             integer           not null,
     flag             integer,
     label_ids        integer[],
     is_hot           boolean default false,
     view_count       integer default 0,
     star_count       integer default 0,
-    create_time      timestamp    not null,
-    user_id          bigint       not null,
+    create_time      timestamp         not null,
+    user_id          bigint            not null,
     status           integer default 1,
-    last_update_time timestamp
+    last_update_time timestamp,
+    sort             integer default 0 not null
 );
 
 comment on table bbs_forum_topic is '论坛帖子/话题信息表';
@@ -174,6 +175,8 @@ comment on column bbs_forum_topic.user_id is '用户ID';
 comment on column bbs_forum_topic.status is '状态 0：正常 1：待审核 2：审核未通过 3：已删除';
 
 comment on column bbs_forum_topic.last_update_time is '帖子/话题的最后更新时间（包括审核状态更新，帖子被删除等）';
+
+comment on column bbs_forum_topic.sort is '帖子排序字段，值越大优先级越高';
 
 alter table bbs_forum_topic
     owner to postgres;
@@ -473,4 +476,3 @@ comment on column bbs_user_friends.update_time is '数据的最后更新时间';
 
 alter table bbs_user_friends
     owner to postgres;
-

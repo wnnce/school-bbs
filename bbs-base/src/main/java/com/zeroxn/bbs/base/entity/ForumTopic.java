@@ -131,4 +131,9 @@ public class ForumTopic implements Serializable {
     @Column(onInsertValue = "current_timestamp")
     private LocalDateTime lastUpdateTime;
 
+    /**
+     * 帖子排序字段，值越大优先级越高
+     */
+    @Column(isLarge = true)
+    private Integer sort;
 }
