@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,10 +31,10 @@ public class GlobalExceptionHandler {
      * @return 返回错误码和错误信息
      */
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<Result<String>> handlerCustomException(CustomException ex) {
+    public ResponseEntity<Result<Void>> handlerCustomException(CustomException ex) {
         logger.error("抛出自定义异常，错误码：{}}，错误信息：{}", ex.getCode(), ex.getMessage());
         HttpStatus errCode = ex.getCode();
-        Result<String> result = Result.failed(errCode, ex.getMessage());
+        Result<Void> result = Result.failed(errCode, ex.getMessage());
         return new ResponseEntity<>(result, errCode);
     }
 
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<String> handlerMethodArgumentNotValidException(MethodArgumentNotValidException ex){
+    public Result<Void> handlerMethodArgumentNotValidException(MethodArgumentNotValidException ex){
         List<ObjectError> allErrors = ex.getAllErrors();
         String[] messages = allErrors.stream().map(ObjectError::getDefaultMessage).toArray(String[]::new);
         return Result.failed(messages[0]);
@@ -57,9 +58,21 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Result<String> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+    public Result<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         logger.error("请求上传的文件过大，上传文件大小：{}", ex.getMaxUploadSize());
         return Result.failed("上传文件过大");
+    }
+
+    /**
+     * 处理方法权限验证错误异常，通常情况是登录用户没有访问此接口的权限
+     * @param ex AccessDeniedException
+     * @return 返回403错误码和报错信息
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Result<Void> handlerAccessDeniedException(AccessDeniedException ex) {
+        logger.error("权限验证异常，错误信息：{}", ex.getMessage());
+        return Result.failed(HttpStatus.FORBIDDEN, "该用户无权限访问");
     }
 
     /**
@@ -69,7 +82,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Result<String> handlerException(Exception ex) {
+    public Result<Void> handlerException(Exception ex) {
         logger.error("未被捕获的异常，异常类型：{}，错误信息：{}", ex.getClass(), ex.getMessage());
         return Result.failed(HttpStatus.INTERNAL_SERVER_ERROR, "系统错误，请稍后再试");
     }

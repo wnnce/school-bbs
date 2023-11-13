@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -41,6 +42,7 @@ import java.util.Set;
  * @Description: Spring Security和Jwt配置类
  */
 @Configuration
+@EnableMethodSecurity
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfigurations {
 

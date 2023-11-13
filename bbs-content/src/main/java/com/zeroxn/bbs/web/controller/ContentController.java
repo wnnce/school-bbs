@@ -11,6 +11,7 @@ import com.zeroxn.bbs.web.service.SearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
@@ -34,6 +35,8 @@ public class ContentController {
 
     @PostMapping("/topic")
     @Operation(description = "保存话题接口")
+    // 方法需要学生认证用户才可访问
+    @PreAuthorize("hasAuthority('SCOPE_student')")
     public Result<Void> saveTopic(@RequestBody @Validated(SaveTopicValidation.class) ForumTopic topic,
                                   @AuthenticationPrincipal Jwt jwt) {
         Long userId = BbsUtils.formJwtGetUserId(jwt);
@@ -43,6 +46,7 @@ public class ContentController {
     }
     @PostMapping("/post")
     @Operation(description = "保存帖子接口")
+    @PreAuthorize("hasAuthority('SCOPE_student')")
     public Result<Void> savePost(@RequestBody @Validated(SavePostValidation.class) ForumTopic post,
                                  @AuthenticationPrincipal Jwt jwt) {
         Long userId = BbsUtils.formJwtGetUserId(jwt);
