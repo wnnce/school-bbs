@@ -39,7 +39,7 @@ public class Result<T> {
      * @param message 错误消息
      * @return 返回数据类
      */
-    public static Result<String> failed(HttpStatus status, String message) {
+    public static Result<Void> failed(HttpStatus status, String message) {
         return new Result<>(status, message);
     }
 
@@ -48,7 +48,7 @@ public class Result<T> {
      * @param message 错误消息
      * @return 返回http错误码400的数据类
      */
-    public static Result<String> failed(String message) {
+    public static Result<Void> failed(String message) {
         return new Result<>(HttpStatus.BAD_REQUEST, message);
     }
 
