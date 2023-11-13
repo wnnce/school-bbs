@@ -10,6 +10,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.task.analytics.TextAnalytics;
 import com.zeroxn.bbs.task.analytics.XunfeiTextAnalytics;
 import okhttp3.OkHttpClient;
@@ -45,8 +46,9 @@ public class XunfeiAnalyticsConfigurations {
             return objectMapper;
         }
         @Bean
-        TextAnalytics xunfeiTextAnalytics(OkHttpClient client, ObjectMapper objectMapper, XunfeiAnalyticsProperties properties) {
-            return new XunfeiTextAnalytics(properties, client, objectMapper);
+        TextAnalytics xunfeiTextAnalytics(OkHttpClient client, ObjectMapper objectMapper, XunfeiAnalyticsProperties properties,
+                                          CacheService cacheService) {
+            return new XunfeiTextAnalytics(properties, client, objectMapper, cacheService);
         }
     }
 }

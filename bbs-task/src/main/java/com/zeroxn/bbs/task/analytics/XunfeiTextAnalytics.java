@@ -2,6 +2,7 @@ package com.zeroxn.bbs.task.analytics;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zeroxn.bbs.base.cache.CacheService;
 import com.zeroxn.bbs.task.config.xunfei.XunfeiAnalyticsProperties;
 import okhttp3.*;
 import org.slf4j.Logger;
@@ -13,7 +14,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,14 +24,16 @@ import java.util.Map;
  */
 public class XunfeiTextAnalytics implements TextAnalytics{
     private static final Logger logger = LoggerFactory.getLogger(XunfeiTextAnalytics.class);
-    private static final Map<String, CacheItem> cacheMap = new HashMap<>();
     private final XunfeiAnalyticsProperties properties;
     private final OkHttpClient client;
     private final ObjectMapper objectMapper;
-    public XunfeiTextAnalytics(XunfeiAnalyticsProperties properties, OkHttpClient client, ObjectMapper objectMapper) {
+    private final CacheService cacheService;
+    public XunfeiTextAnalytics(XunfeiAnalyticsProperties properties, OkHttpClient client, ObjectMapper objectMapper,
+                               CacheService cacheService) {
         this.properties = properties;
         this.client = client;
         this.objectMapper = objectMapper;
+        this.cacheService = cacheService;
     }
 
     /**
@@ -68,48 +70,42 @@ public class XunfeiTextAnalytics implements TextAnalytics{
     }
 
     private Request.Builder makeRequest() {
-        Long currentTime = System.currentTimeMillis() / 1000;
+        final long currentTime = System.currentTimeMillis() / 1000;
         String xParam = initXParam();
         return new Request.Builder()
                 .url(properties.getRequestUrl())
                 .header("Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
                 .header("X-Appid", properties.getAppid())
-                .header("X-CurTime", currentTime.toString())
+                .header("X-CurTime", String.valueOf((currentTime)))
                 .header("X-Param", xParam)
                 .header("X-CheckSum", makeCheckSum(currentTime, xParam));
     }
 
     private String initXParam() {
-        CacheItem param = cacheMap.get("param");
+        String param = cacheService.getCache("param", String.class);
         if (param == null) {
             Type type = new Type(properties.getType());
             String typeJson = objectToString(type);
-            typeJson = Base64.getEncoder().encodeToString(typeJson.getBytes(StandardCharsets.UTF_8));
-            param = new CacheItem(typeJson, null);
-            cacheMap.put("param", param);
+            param = Base64.getEncoder().encodeToString(typeJson.getBytes(StandardCharsets.UTF_8));
+            cacheService.setCache("param", param, Duration.ofDays(30));
         }
-        return param.data();
+        return param;
     }
 
-    private String makeCheckSum(Long currentTime, String xParam) {
-        CacheItem checkSum = cacheMap.get("checkSum");
-        if (checkSum == null || checkSum.expire() > System.currentTimeMillis() / 1000) {
+    private String makeCheckSum(long currentTime, String xParam) {
+        try{
             String originValue = properties.getApiKey() + currentTime + xParam;
-            try{
-                MessageDigest md = MessageDigest.getInstance("MD5");
-                byte[] md5 = md.digest(originValue.getBytes(StandardCharsets.UTF_8));
-                StringBuilder sb = new StringBuilder();
-                for (byte b : md5) {
-                    sb.append(String.format("%02x", b & 0xff));
-                }
-                checkSum = new CacheItem(sb.toString(), Duration.ofMinutes(3).toSeconds() + currentTime);
-                cacheMap.put("checkSum", checkSum);
-            }catch (NoSuchAlgorithmException ex) {
-                logger.error("请求参数md5摘要失败，错误信息：{}", ex.getMessage());
-                return "";
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] md5 = md.digest(originValue.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : md5) {
+                sb.append(String.format("%02x", b & 0xff));
             }
+            return sb.toString();
+        }catch (NoSuchAlgorithmException ex) {
+            logger.error("请求参数md5摘要失败，错误信息：{}", ex.getMessage());
+            return "";
         }
-        return checkSum.data();
     }
     private <T> T stringToObject(String value, Class<T> clazz) {
         T object = null;
@@ -131,7 +127,6 @@ public class XunfeiTextAnalytics implements TextAnalytics{
         return value;
     }
     private record Type(String type) {}
-    public record CacheItem(String data, Long expire) {}
     public record XunfeiResult(String code, String desc, String sid, Map<String, List<Keyword>> data) {}
     public record Keyword(Float score, String word) {}
 }
