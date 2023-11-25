@@ -119,7 +119,7 @@ public class GlobalAsyncTask {
                     .select(FORUM_TOPIC.ID, FORUM_TOPIC.TYPE, FORUM_TOPIC.USER_ID)
                     .where(FORUM_TOPIC.ID.eq(comment.getTopicId()))), executors);
             try {
-                CompletableFuture.allOf(nickNaeFuture, topicFuture).get();
+                CompletableFuture.allOf(nickNaeFuture, topicFuture).join();
                 ForumTopic findTopic = topicFuture.get();
                 if (findTopic == null) {
                     logger.info("评论对应的帖子/话题不存在，跳过写入消息，topicId：{}", comment.getTopicId());
@@ -150,7 +150,7 @@ public class GlobalAsyncTask {
                     .select(COMMENT.USER_ID)
                     .where(COMMENT.ID.eq(COMMENT.ID.eq(comment.getRid()))), Long.class));
             try {
-                CompletableFuture.allOf(nickNameFuture, userIdFuture).get();
+                CompletableFuture.allOf(nickNameFuture, userIdFuture).join();
                 Long userId = userIdFuture.get();
                 if (userId == null) {
                     logger.info("回复的评论不存在，跳过写入消息，commentId：{}", comment.getRid());
@@ -173,7 +173,7 @@ public class GlobalAsyncTask {
      * 更新帖子的收藏次数
      * @param topicId 帖子/话题Id
      * @param count 需要更新的数量
-     * @param isAdd 添加还是建设 true：添加 false：减少
+     * @param isAdd 添加还是减少 true：添加 false：减少
      */
     public void updateTopicStarCount(Integer topicId, int count, boolean isAdd) {
         String rowOption;

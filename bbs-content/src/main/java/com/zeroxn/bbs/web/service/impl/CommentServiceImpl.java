@@ -82,12 +82,7 @@ public class CommentServiceImpl implements CommentService {
                 childrenFutureMap.put(comment.getId(), childrenCommentFuture);
             });
             // 等待所有线程执行完毕
-            try {
-                CompletableFuture.allOf(childrenFutureMap.values().toArray(new CompletableFuture[]{})).get();
-            }catch (Exception ex) {
-                logger.error("等待所有异步线程执行完毕报错，错误信息：{}", ex.getMessage());
-                return commentTreePage;
-            }
+            CompletableFuture.allOf(childrenFutureMap.values().toArray(CompletableFuture[]::new)).join();
             commentTreePage.getRecords().forEach(comment -> {
                 try {
                     Page<CommentTreeDto> childrenCommentPage = childrenFutureMap.get(comment.getId()).get();
