@@ -26,7 +26,7 @@
 
 **后端整体架构图**
 
-![Screenshot_20231026_094327](https://image.qiniu.vnc.ink/share/1.png)
+![Screenshot_20231026_094327](http://image.qiniu.vnc.ink/share/1.png)
 
 ## 如何使用
 
@@ -204,7 +204,7 @@ services:
 docker-compose up -d
 ```
 
-启动成功后访问[http://localhost:7700](http://localhost:770)即可访问调度平台（首次使用需注册应用程序）
+启动成功后访问[http://localhost:7700](http://localhost:7700)即可访问调度平台（首次使用需注册应用程序）
 
 然后修改`application-{env}.yml`配置文件
 
@@ -255,9 +255,9 @@ baidu:
 
 任务模块启动成功后，没有暴露`Web`端口，可以通过任务调度平台查看模块信息并添加、运行任务
 
-![Screenshot_20231026_111425](https://image.qiniu.vnc.ink/share/2.png)
+![Screenshot_20231026_111425](http://image.qiniu.vnc.ink/share/2.png)
 
-![Screenshot_20231026_111538](https://image.qiniu.vnc.ink/share/3.png)
+![Screenshot_20231026_111538](http://image.qiniu.vnc.ink/share/3.png)
 
 任务添加时可以添加任务参数，该参数在任务执行器方法的上下文中可以拿到，方便定制任务运行逻辑。任务运行过程中在任务实例可以看到当前任务的实时日志。
 
